@@ -3,8 +3,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <R.h>
-#include <Rinternals.h>
 #include <Rmath.h>
+#include <Rinternals.h>
 
 
 /* ***********************************************************************
@@ -2540,7 +2540,7 @@ void partraj(double **Pid, int *maxk, double **Mk, double **Mkd,
 	     double **res)
 {
     /* declaration of variables */
-    int i, j, k, m, l, D, Km;
+    int i, j, k, l, D, Km;
     double **Mkk, **cumPid, tmp;
     
     /* Memory allocation */
@@ -2548,7 +2548,6 @@ void partraj(double **Pid, int *maxk, double **Mk, double **Mkd,
     D = Pid[1][0]; /* Number of models */
     Km = *maxk;    /* Partition size */
     tmp = 0;
-    m = 0;
     
     taballoc(&Mkk, Km, D); /* Contains mkd for i = k, for all models */
     taballoc(&cumPid, l, D); /* For the probability of the sequences */
@@ -2650,8 +2649,8 @@ void partrajr(double *Pidr, double *curmar, int *curmodr, int *curlocr,
 	      int *lr, int *Dr, int *Kmr)
 {
     /* Variable declaration */
-    int l, D, Km, i, j, k, m, n, new, *curloc, *curmod;
-    double **Mk, **Mkd, **Pid, **res, tmp, *curma, **grap;
+    int l, D, Km, i, j, k, m, n, *curloc, *curmod;
+    double **Mk, **Mkd, **Pid, **res, *curma, **grap;
     
     /* Memory allocation */
     l = *lr;
@@ -2659,8 +2658,6 @@ void partrajr(double *Pidr, double *curmar, int *curmodr, int *curlocr,
     Km = *Kmr;
     m = 0;
     n = 0;
-    tmp = 0;
-    new = 0;
     taballoc(&Mk, l, Km);
     taballoc(&Mkd, l, D);
     taballoc(&Pid, l, D);
@@ -2849,24 +2846,435 @@ void acfangl (double *sim, double *ang, int *nang, double *angper, int *nbobs, i
 
 }
 
+/* ***********************************************************************
+ *                                                                       *
+ *                          MKDE                                         *
+ *                                                                       *
+ * ********************************************************************* */
+
+
+
+int HBT(double xt, double yt, SEXP hab, SEXP nrow, SEXP cs, double xll2, 
+	double yll2)
+{
+    int hh, nl, nc;
+    nl = (int) ftrunc(((xt - xll2)/REAL(cs)[0]) + REAL(cs)[0]*0.000001); 
+    nc = (int) ftrunc(((yt - yll2)/REAL(cs)[0]) + REAL(cs)[0]*0.000001);
+    hh = INTEGER(hab)[ nl + (nc * (INTEGER(nrow)[0])) ];
+    return(hh);
+}
+
+
+int HBTl(SEXP xl, SEXP yl, SEXP PAtmp, SEXP hab, SEXP nrow, SEXP cs, double xll2, 
+	double yll2, int k, int i)
+{
+    double t1, xt, yt;
+    int n, j, hh, th;
+    SEXP habp;
+    
+    PROTECT(habp = allocVector(INTSXP, k+1));
+    
+
+    t1 = REAL(PAtmp)[i+1] - REAL(PAtmp)[i];
+    n = (int) round(t1);
+    if (n <1)
+	n = 1;
+    for (j = 0; j < k+1; j++) {
+	INTEGER(habp)[j] = 0;
+    }
+    
+    /* identify the habitat at each step */
+    for (j = 0; j <= n; j++) {
+	xt = REAL(xl)[i] + (((double) j)/((double) n)) * (REAL(xl)[i+1] - REAL(xl)[i]);
+	yt = REAL(yl)[i] + (((double) j)/((double) n)) * (REAL(yl)[i+1] - REAL(yl)[i]);
+	hh = HBT(xt, yt, hab, nrow, cs, xll2, yll2);
+	if (hh != NA_INTEGER) {
+	    INTEGER(habp)[hh]++;
+	} else {
+	    INTEGER(habp)[k]++;
+	}
+    }
+    hh=0;
+    for (j = 0; j < k+1; j ++) {
+	if (INTEGER(habp)[j] == (n+1)) {
+	    th = j;
+	    hh++;
+	}
+    }
+    
+    if (hh > 0) {
+	UNPROTECT(1);
+	return(th);
+    } else {
+	UNPROTECT(1);
+	return(NA_INTEGER);
+    }
+}
+
+
+/* df contient x,y,date en posix */
+SEXP fillsegments(SEXP df, SEXP Tmaxr, SEXP taur, SEXP hminr, SEXP D, SEXP Lminr, 
+		  SEXP b, SEXP hab, SEXP xll, SEXP yll, SEXP cs, SEXP nrowc, SEXP PA)
+{
+    int nrow, nnr, ni, i, m, k, nh, h, lp;
+    double dt, dta, Tmax, tau, h2min, Lmin, dist, hmin, xll2, yll2, hm;
+    SEXP x, y, date, resux, resuy, resuh, dfso, hmax, h2max, PAtmp, PA2;
+    
+    /* Le nombre de lignes de ce data.frame */
+    nrow = length(VECTOR_ELT(df,0));
+    nnr = 0;
+    nh = length(D);
+    if (nh > 1) {
+	xll2 = REAL(xll)[0] - REAL(cs)[0]/2.0;
+	yll2 = REAL(yll)[0] - REAL(cs)[0]/2.0;
+    }
+    
+    Tmax = REAL(Tmaxr)[0];
+    hmin = REAL(hminr)[0];
+    h2min = R_pow(hmin, 2.0);
+    
+    PROTECT(hmax = allocVector(REALSXP, nh+1));
+    PROTECT(h2max = allocVector(REALSXP, nh+1));
+
+    REAL(hmax)[0] = sqrt(((1.0 - REAL(b)[0]) * h2min) + (REAL(D)[0] * Tmax / 2.0));
+    hm = REAL(hmax)[0];
+    if (nh > 1) {
+	for (i = 1; i < nh; i++) {
+	    REAL(hmax)[i] = sqrt(((1.0 - REAL(b)[0]) * h2min) + (REAL(D)[i] * Tmax / 2.0));
+	    if (hm < REAL(hmax)[i])
+		hm = REAL(hmax)[i];
+	}
+	REAL(hmax)[nh] = hm;
+    }
+    Lmin = REAL(Lminr)[0];
+    tau = REAL(taur)[0];
+    REAL(h2max)[0] = R_pow(REAL(hmax)[0], 2.0);
+    if (nh > 1) {
+	for (i = 1; i <= nh; i++) {
+	    REAL(h2max)[i] = R_pow(REAL(hmax)[i], 2.0);
+	}
+    }
+
+    /* Get the coordinates and date */
+    PROTECT(x = coerceVector(VECTOR_ELT(df,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(df,1), REALSXP));
+    PROTECT(date = coerceVector(VECTOR_ELT(df,2), REALSXP));
+    lp = length(PA);
+    PROTECT(PAtmp = allocVector(REALSXP, nrow));
+    PROTECT(PA2 = coerceVector(PA, REALSXP));
+    if (lp > 1) {
+	REAL(PAtmp)[0] = 0.0;
+	for (i = 1; i < nrow; i++) {
+	    REAL(PAtmp)[i] = REAL(PAtmp)[i-1] + (REAL(PA2)[i-1] * (REAL(date)[i] - REAL(date)[i-1]));
+	}	
+    } else {
+	for (i = 0; i < nrow; i++) {
+	    REAL(PAtmp)[i] = REAL(date)[i];
+	}
+    }
+    
+    
+    /* for each segment, calculates the number of points to add */
+    for (i = 0; i < (nrow-1); i++) {
+	dt = REAL(date)[i+1] - REAL(date)[i];
+	dta = REAL(PAtmp)[i+1] - REAL(PAtmp)[i];
+	dist = hypot(REAL(x)[i+1] - REAL(x)[i], REAL(y)[i+1] - REAL(y)[i]);
+	if ((dt < Tmax)&&(dist > Lmin)) {
+	    nnr = nnr + (int) round(dta/tau);
+	}
+    }
+    nnr++;
+    
+    /* prepares the vector of output */
+    PROTECT(resux = allocVector(REALSXP, nnr));
+    PROTECT(resuy = allocVector(REALSXP, nnr));
+    PROTECT(resuh = allocVector(REALSXP, nnr));
+    
+    /* and finds the coordinates of the points */
+    k=0;
+    for (i = 0; i < (nrow-1); i++) {
+
+	dt = REAL(date)[i+1] - REAL(date)[i];
+	dta = REAL(PAtmp)[i+1] - REAL(PAtmp)[i];
+	dist = hypot(REAL(x)[i+1] - REAL(x)[i], REAL(y)[i+1] - REAL(y)[i]);
+
+	if ((dt < Tmax)&&(dist>Lmin)&&(dta>0.0000001)) {
+	    ni = (int) round(dta/tau);
+	    for (m = 0; m < ni; m++) {
+		REAL(resux)[k] = REAL(x)[i]+ 
+			((double) m) * (REAL(x)[i+1] - REAL(x)[i])/((double) ni);
+		REAL(resuy)[k] = REAL(y)[i]+ 
+		    ((double) m) * (REAL(y)[i+1] - REAL(y)[i])/((double) ni);
+		if (nh < 2) {
+		    REAL(resuh)[k] = sqrt(h2min + 4.0*(((double) m)/((double) ni))*
+					  (1 - ((double) m)/((double) ni))*(REAL(h2max)[0] - h2min)*dta/Tmax);
+		} else {
+		    h = HBT(REAL(resux)[k], REAL(resuy)[k], hab, nrowc, cs, xll2, 
+			    yll2);
+		    if (h == NA_INTEGER) {
+			REAL(resuh)[k] = sqrt(h2min + 4.0*(((double) m)/((double) ni))*
+					      (1 - ((double) m)/((double) ni))*
+					      (REAL(h2max)[nh] - h2min)*dta/Tmax);
+			
+		    } else {
+			REAL(resuh)[k] = sqrt(h2min + 4.0*(((double) m)/((double) ni))*
+					      (1 - ((double) m)/((double) ni))*
+					      (REAL(h2max)[h] - h2min)*dta/Tmax);
+			
+		    }
+		}
+		k++;
+	    }
+	}
+    }
+    
+    REAL(resux)[k] = REAL(x)[nrow-1];
+    REAL(resuy)[k] = REAL(y)[nrow-1];
+    REAL(resuh)[k] = sqrt(h2min);
+    
+    PROTECT(dfso = allocVector(VECSXP, 3));
+    SET_VECTOR_ELT(dfso, 0, resux);
+    SET_VECTOR_ELT(dfso, 1, resuy);
+    SET_VECTOR_ELT(dfso, 2, resuh);
+
+    UNPROTECT(11);
+
+    return(dfso);
+}
+
+
+/* On calcule maintenant, sur la base d'une grille passée, l'estimation kernel */
+SEXP mkde(SEXP xyh, SEXP grid)
+{
+    
+    int n, nl, i, j;
+    SEXP x, y, h, dens, xg, yg, gridso;
+    double xmin, ymin, xmax, ymax, hmax, dist;
+    
+    /* on ajuste alors le noyau */
+    n = length(VECTOR_ELT(grid,0));
+    nl = length(VECTOR_ELT(xyh,0));
+
+
+    PROTECT(x = coerceVector(VECTOR_ELT(xyh,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyh,1), REALSXP));
+    PROTECT(h = coerceVector(VECTOR_ELT(xyh,2), REALSXP));
+    PROTECT(xg = coerceVector(VECTOR_ELT(grid,0), REALSXP));
+    PROTECT(yg = coerceVector(VECTOR_ELT(grid,1), REALSXP));
+    PROTECT(dens = allocVector(REALSXP, n));
+    
+    
+    xmin = REAL(x)[0];
+    ymin = REAL(y)[0];
+    xmax = REAL(x)[0];
+    ymax = REAL(y)[0];
+    hmax = REAL(h)[0];
+    for (j = 1; j < nl; j++) {
+	if (REAL(x)[j] < xmin)
+	    xmin = REAL(x)[j];
+	if (REAL(x)[j] > xmax)
+	    xmax = REAL(x)[j];
+	if (REAL(y)[j] < ymin)
+	    ymin = REAL(y)[j];
+	if (REAL(y)[j] > ymax)
+	    ymax = REAL(y)[j];
+	if (REAL(h)[j] > hmax)
+	    hmax = REAL(h)[j];
+    }
+    hmax = hmax * 3.0;
+    
+    for (i = 0; i < n; i++) {
+	R_CheckUserInterrupt();
+	REAL(dens)[i] = 0.0;
+	if ((xmin - REAL(xg)[i] < hmax)&&
+	    (ymin - REAL(yg)[i] < hmax)&&
+	    (REAL(xg)[i] - xmax < hmax)&&
+	    (REAL(yg)[i] - ymax < hmax)) {
+
+	    for (j = 0; j < nl; j++) {
+		dist= hypot(REAL(x)[j] -REAL(xg)[i], REAL(y)[j] -REAL(yg)[i]);
+		if (dist < 3.0*REAL(h)[j]) {
+		    REAL(dens)[i] = REAL(dens)[i] + exp(-(R_pow(dist,2.0))/
+							(2.0 * R_pow(REAL(h)[j], 2.0))) / 
+			R_pow(REAL(h)[j], 2.0);
+		}
+	    }
+	    REAL(dens)[i] = (1.0/(2.0 * M_PI * ((double) nl)))*(REAL(dens)[i]);
+	}
+    }
+
+    PROTECT(gridso = allocVector(VECSXP, 3));
+    SET_VECTOR_ELT(gridso, 0, xg);
+    SET_VECTOR_ELT(gridso, 1, yg);
+    SET_VECTOR_ELT(gridso, 2, dens);
+
+    UNPROTECT(7);
+    return(gridso);
+}
+
+
+
+
+/* bis */
+SEXP mkdeb(SEXP xyh, SEXP xll, SEXP yll, SEXP cs, SEXP nrow, SEXP ncol)
+{
+    
+    int nl, nr, nc, nro, nco, i, j, l, c, hmaxdis;
+    SEXP x, y, h, dens, xg, yg, gridso;
+    double xlo, ylo, hmax, dist, xll2, yll2;
+    
+    /* on ajuste alors le noyau */
+    nl = length(VECTOR_ELT(xyh,0));
+
+
+    PROTECT(x = coerceVector(VECTOR_ELT(xyh,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyh,1), REALSXP));
+    PROTECT(h = coerceVector(VECTOR_ELT(xyh,2), REALSXP));
+    PROTECT(xg = allocVector(REALSXP, INTEGER(nrow)[0]*INTEGER(ncol)[0]));
+    PROTECT(yg = allocVector(REALSXP, INTEGER(nrow)[0]*INTEGER(ncol)[0]));
+    PROTECT(dens = allocVector(REALSXP, INTEGER(nrow)[0]*INTEGER(ncol)[0]));
+    nro = INTEGER(nrow)[0];
+    nco = INTEGER(ncol)[0];
+
+    for (j = 0; j < nco; j++) {
+	for (i = 0; i < nro; i++) {
+	    REAL(xg)[ i + (j * (INTEGER(nrow)[0])) ] = REAL(xll)[0] + ((double) i)*REAL(cs)[0];
+	    REAL(yg)[ i + (j * (INTEGER(nrow)[0])) ] = REAL(yll)[0] + ((double) j)*REAL(cs)[0];
+	}
+    }
+	    
+    for (i = 0; i < INTEGER(nrow)[0]*INTEGER(ncol)[0]; i++) {
+	REAL(dens)[i] = 0.0;
+    }
+    
+    hmax = REAL(h)[0];
+    for (j = 1; j < nl; j++) {
+	if (REAL(h)[j] > hmax)
+	    hmax = REAL(h)[j];
+    }
+    hmax = hmax * 3.0;
+    xll2 = REAL(xll)[0] - REAL(cs)[0]/2.0;
+    yll2 = REAL(yll)[0] - REAL(cs)[0]/2.0;
+    hmaxdis = (int) round(hmax / REAL(cs)[0]);
+    
+    for (j = 0; j < nl; j++) {
+	R_CheckUserInterrupt();
+	xlo = REAL(x)[j];
+	ylo = REAL(y)[j];
+	nr = (int) ftrunc(((xlo - xll2)/REAL(cs)[0]) + REAL(cs)[0]*0.000001); 
+	nc = (int) ftrunc(((ylo - yll2)/REAL(cs)[0]) + REAL(cs)[0]*0.000001);
+	for (l = (nr-hmaxdis-1); l <(nr+hmaxdis+1); l++) {
+	    for (c = (nc-hmaxdis-1); c <(nc+hmaxdis+1); c++) {
+		if ((l<nro)&&(l>0)) {
+		    if ((c<nco)&&(c>0)) {
+			dist= hypot(xlo -REAL(xg)[l + (c * (INTEGER(nrow)[0]))], 
+				     ylo -REAL(yg)[l + (c * (INTEGER(nrow)[0]))]);
+			REAL(dens)[ l + (c * (INTEGER(nrow)[0])) ] =
+			    REAL(dens)[ l + (c * (INTEGER(nrow)[0])) ] +
+			    exp(-(R_pow(dist,2.0))/
+				(2.0 * R_pow(REAL(h)[j], 2.0))) / 
+			    R_pow(REAL(h)[j], 2.0)/(2.0 * M_PI * ((double) nl));
+		    }
+		}
+	    }
+	}
+    }
+	
+
+    PROTECT(gridso = allocVector(VECSXP, 3));
+    SET_VECTOR_ELT(gridso, 0, xg);
+    SET_VECTOR_ELT(gridso, 1, yg);
+    SET_VECTOR_ELT(gridso, 2, dens);
+
+    UNPROTECT(7);
+    return(gridso);
+}
+
+
+
+/* */
+SEXP CalculD(SEXP tra, SEXP Tmaxr, SEXP Lmin, SEXP PA)
+{
+    double Tmax, t1, t2, xt, yt, delta2, D, l1, l2;
+    int n, i, Nc, lp;
+    SEXP x, y, date, Ds, PA2, PAtmp;
+    
+    Tmax = REAL(Tmaxr)[0];
+    n = length(VECTOR_ELT(tra,0));
+    xt = 0.0;
+    yt = 0.0;
+
+    /* Get the coordinates and date */
+    PROTECT(x = coerceVector(VECTOR_ELT(tra,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(tra,1), REALSXP));
+    PROTECT(date = coerceVector(VECTOR_ELT(tra,2), REALSXP));
+    lp = length(PA);
+    PROTECT(PAtmp = allocVector(REALSXP, n));
+    PROTECT(PA2 = coerceVector(PA, REALSXP));
+    if (lp > 1) {
+	REAL(PAtmp)[0] = 0.0;
+	for (i = 1; i < n; i++) {
+	    REAL(PAtmp)[i] = REAL(PAtmp)[i-1] + (REAL(PA2)[i-1] * 
+						 (REAL(date)[i] - REAL(date)[i-1]));
+	}	
+    } else {
+	for (i = 0; i < n; i++) {
+	    REAL(PAtmp)[i] = REAL(date)[i];
+	}
+    }
+
+
+    D = 0.0;
+    Nc = 0;
+    for (i = 0; i < (n-2); i++) {	
+	t1 = REAL(PAtmp)[i+1] - REAL(PAtmp)[i];
+	t2 = REAL(PAtmp)[i+2] - REAL(PAtmp)[i+1];
+	l1 = hypot(REAL(x)[i+1] - REAL(x)[i], 
+		    REAL(y)[i+1] - REAL(y)[i]);
+	l2 = hypot(REAL(x)[i+2] - REAL(x)[i+1],
+		    REAL(y)[i+2] - REAL(y)[i+1]);
+	if ((REAL(date)[i+2]-REAL(date)[i]) < Tmax) {
+	    if (t1 > 0.0000000001) {
+		if (t2 > 0.0000000001) {
+		    if (t1 < 2.0 * t2) {
+			if (t1 > t2/2.0) {
+			    if (l1 <  2.0 * l2) {
+				if (l1 >  l2/2.0) {
+				    if (l1 > REAL(Lmin)[0]) {
+					if (l2 > REAL(Lmin)[0]) {
+					    xt = REAL(x)[i] + (REAL(x)[i+2] - REAL(x)[i])*(t1/(t1+t2));
+					    yt = REAL(y)[i] + (REAL(y)[i+2] - REAL(y)[i])*(t1/(t1+t2));
+					    delta2 = R_pow((xt - REAL(x)[i+1]), 2.0) + 
+						R_pow((yt - REAL(y)[i+1]), 2.0);
+					    D = D + (delta2*((1.0/t1) + (1.0/t2)));
+					    Nc++;
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+    D = D/(4.0 * ((double) Nc));
+    PROTECT(Ds = allocVector(REALSXP, 1));
+    REAL(Ds)[0] = D;
+    UNPROTECT(6);
+
+    return(Ds);    
+}
 
 
 
 
 
-/* *********************************************************************
- *                                                                     *
- *                       Rasterizing a trajectory                      *
- *                                                                     *
- ***********************************************************************/
-
-
-
-
+/* Composantes d'un trajet. Rastérisation d'un pas */
 SEXP RasterPas(SEXP df, SEXP xllr, SEXP yllr, SEXP cs, SEXP type1)
 {
     int npas, i, j, nso, k;
-    SEXP xl, yl, resu, so, xso, yso, dfso;
+    SEXP xl, yl, resu, xso, yso, so, dfso;
     double x1, y1, x2, y2, 
 	xc, yc, dist, xt, yt, csi, xll, yll;
     
@@ -2939,3 +3347,1778 @@ SEXP RasterPas(SEXP df, SEXP xllr, SEXP yllr, SEXP cs, SEXP type1)
     }
 
 }
+
+
+
+
+
+
+/* Differences with the program of Simon Benhamou: trunc on a integer i stored as a double
+   can return i or i-1
+ */
+SEXP calculDparhab(SEXP df, SEXP hab, SEXP xll, SEXP yll, SEXP cs, SEXP nrow,
+		   SEXP Lmin, SEXP nombrehab, SEXP PA, SEXP Tmax)
+{
+    SEXP xl, yl, tem, typpas, habp, Nc, Dh, dfso, PAtmp, PA2;
+    int i, k, nlocs, lp;
+    double t1, t2, l1, l2, xt, yt, delta2, tau, xll2, yll2;
+
+    k = INTEGER(nombrehab)[0];
+    nlocs = length(VECTOR_ELT(df,0));
+    tau = REAL(cs)[0]/100.0;
+
+    PROTECT(xl = coerceVector(VECTOR_ELT(df,0), REALSXP));
+    PROTECT(yl = coerceVector(VECTOR_ELT(df,1), REALSXP));
+    PROTECT(tem = coerceVector(VECTOR_ELT(df,2), REALSXP));
+    PROTECT(typpas = allocVector(INTSXP, nlocs-1));
+    PROTECT(habp = allocVector(INTSXP, k+1));
+    lp = length(PA);
+    PROTECT(PAtmp = allocVector(REALSXP, nlocs));
+    PROTECT(PA2 = coerceVector(PA, REALSXP));
+
+    /* From center to the corner of lower left pixel */
+    xll2 = REAL(xll)[0] - (REAL(cs)[0]/2.0);
+    yll2 = REAL(yll)[0] - (REAL(cs)[0]/2.0);
+
+    /*  Take into account the proportion of activity time */
+    if (lp > 1) {
+	REAL(PAtmp)[0] = 0.0;
+	for (i = 1; i < nlocs; i++) {
+	    REAL(PAtmp)[i] = REAL(PAtmp)[i-1] + (REAL(PA2)[i-1] * (REAL(tem)[i] - REAL(tem)[i-1]));
+	}	
+    } else {
+	for (i = 0; i < nlocs; i++) {
+	    REAL(PAtmp)[i] = REAL(tem)[i];
+	}
+    }
+    
+    
+    /* for each step */
+    for (i = 0; i < nlocs-1; i++) {
+	INTEGER(typpas)[i] = HBTl(xl, yl, PAtmp, hab, nrow, cs, xll2, yll2, k, i);
+    }
+    
+    
+    /* calculates the D coefficient */
+    PROTECT(Nc = allocVector(INTSXP, k));
+    PROTECT(Dh = allocVector(REALSXP, k));
+
+    for (i = 0; i < k; i++) {
+	REAL(Dh)[i] = 0.0;
+	INTEGER(Nc)[i] = 0;
+    }
+    
+    for (i = 0; i < (nlocs-2); i++) { 
+	if ((INTEGER(typpas)[i+1] != NA_INTEGER)&&
+	    (INTEGER(typpas)[i+1] == INTEGER(typpas)[i])) {
+	    l2 = hypot(REAL(xl)[i+2] - REAL(xl)[i+1], REAL(yl)[i+2] - REAL(yl)[i+1]);
+	    l1 = hypot(REAL(xl)[i+1] - REAL(xl)[i], REAL(yl)[i+1] - REAL(yl)[i]);
+	    t2 = REAL(PAtmp)[i+2] - REAL(PAtmp)[i+1];
+	    t1 = REAL(PAtmp)[i+1] - REAL(PAtmp)[i];
+	    if (t1 > 0.0000000001) {
+		if (t2 > 0.0000000001) {
+		    if ((REAL(tem)[i+2]-REAL(tem)[i]) < REAL(Tmax)[0]) {
+			if (t1 < 2.0 * t2) {
+			    if (t1 > t2/2.0) {
+				if (l1 <  2.0 * l2) {
+				    if (l1 >  l2/2.0) {
+					if (l1 > REAL(Lmin)[0]) {
+					    if (l2 > REAL(Lmin)[0]) {
+						xt = REAL(xl)[i] + (REAL(xl)[i+2] - 
+								    REAL(xl)[i])*(t1/(t1+t2));
+						yt = REAL(yl)[i] + (REAL(yl)[i+2] - 
+								    REAL(yl)[i])*(t1/(t1+t2));
+						delta2 = R_pow((xt - REAL(xl)[i+1]), 2.0) + 
+						    R_pow((yt - REAL(yl)[i+1]), 2.0);
+						REAL(Dh)[INTEGER(typpas)[i]] = 
+						    REAL(Dh)[INTEGER(typpas)[i]] +
+						    (delta2*((1.0/t1) + (1.0/t2)));
+						INTEGER(Nc)[INTEGER(typpas)[i]]++;
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+    
+    for (i = 0; i < k; i++) {
+	REAL(Dh)[i] = 
+	    REAL(Dh)[i] / 
+	    (4.0 * ((double) INTEGER(Nc)[i]));	    
+    }
+
+    PROTECT(dfso = allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(dfso, 0, Nc);
+    SET_VECTOR_ELT(dfso, 1, Dh);
+
+
+    UNPROTECT(10);
+    return(dfso);    
+}
+
+
+
+/* **********************************************************
+
+
+********************************************************** */
+
+/* Calcul D par maximum de vraisemblance */
+
+double calcv(SEXP xl, SEXP yl, SEXP da, double D, SEXP pc, int k)
+{
+    int n, i, ori;
+    double vrais, d, T, t;
+    
+    ori=k;
+    n = length(xl);
+    vrais = 0.0;
+    for (i = 1; i < n-1; i++) {
+	if (k == 0) {
+	    if (INTEGER(pc)[i] == 1) {
+		T = REAL(da)[i+1]-REAL(da)[i-1];
+		t = REAL(da)[i]-REAL(da)[i-1];
+		d = hypot(REAL(xl)[i] - REAL(xl)[i-1] - (t/T)*(REAL(xl)[i+1] - REAL(xl)[i-1]),
+			  REAL(yl)[i] - REAL(yl)[i-1] - (t/T)*(REAL(yl)[i+1] - REAL(yl)[i-1]));
+		vrais = vrais + log(T/(4.0*M_PI*D*t*(T-t))) - R_pow(d,2.0)/(4.0*D*t*(T-t)/T);
+		k++;
+	    } 
+	} else {
+	    k=0;
+	}
+    }
+    return(vrais);
+}
+
+
+double compteN(SEXP xl, SEXP pc, int k)
+{
+    int n, i,cons;
+    
+    n = length(xl);
+    cons=0;
+    for (i = 1; i < n-1; i++) {
+	if (k == 0) {
+	    if (INTEGER(pc)[i] == 1) {
+		cons++;
+		k++;
+	    } 
+	} else {
+	    k=0;
+	}
+    }
+    return((double) cons);
+}
+
+
+SEXP Dmv(SEXP df, SEXP Dr, SEXP pcr, SEXP kr)
+{
+    SEXP xl, yl, da, D, sor, pc;
+    double fx1, fx2, fx3, fx4, x1, x2, x3, x4, phi;
+    int ndr, conv, kk;
+    
+    ndr = length(Dr);
+    PROTECT(D = coerceVector(Dr, REALSXP));
+    PROTECT(pc = coerceVector(pcr, INTSXP));
+    PROTECT(xl = coerceVector(VECTOR_ELT(df,0), REALSXP));
+    PROTECT(yl = coerceVector(VECTOR_ELT(df,1), REALSXP));
+    PROTECT(da = coerceVector(VECTOR_ELT(df,2), REALSXP));
+    PROTECT(sor = allocVector(REALSXP, 2));
+    kk = INTEGER(kr)[0];
+    
+    /* Golden section search */
+    x1 = REAL(D)[0];
+    x3 = REAL(D)[1];
+    phi = (-1.0 + sqrt(5.0))/2.0;
+    fx1 = calcv(xl, yl, da, x1, pc, kk);
+    fx3 = calcv(xl, yl, da, x3, pc, kk);
+    
+    conv = 0;
+    while (!conv) {
+	x2 = x3 - phi*(x3-x1);
+	x4 = x1 + phi*(x3-x1);
+	fx2 = calcv(xl, yl, da, x2, pc, kk);
+	fx4 = calcv(xl, yl, da, x4, pc, kk);
+
+	if (fx2 < fx4) {
+	    x1 = x2;
+	    fx1 = fx2;
+	} else {
+	    x3 = x4;
+	}
+	if (fabs(x3-x1)<0.00000001) {
+	    conv = 1;
+	    x4 = (x3+x1)/2.0;
+	}
+    }
+    REAL(sor)[0] = compteN(xl, pc, kk);
+    REAL(sor)[1] = x4;
+
+
+    UNPROTECT(6);
+    return(sor);
+}
+
+
+
+
+
+double calcvb(SEXP xl, SEXP yl, SEXP da, double D, SEXP pc, SEXP nb, int k)
+{
+    int n, i;
+    double vrais, d, T, t;
+    
+    n = length(xl);
+    vrais = 0.0;
+    for (i = 1; i < n-1; i++) {
+	if (k == 0) {
+	    if (INTEGER(pc)[i] == 1) {
+		if (REAL(nb)[i] > 0.5) {
+		    T = REAL(da)[i+1]-REAL(da)[i-1];
+		    t = REAL(da)[i]-REAL(da)[i-1];
+		    d = hypot(REAL(xl)[i] - REAL(xl)[i-1] - (t/T)*(REAL(xl)[i+1] - REAL(xl)[i-1]),
+			      REAL(yl)[i] - REAL(yl)[i-1] - (t/T)*(REAL(yl)[i+1] - REAL(yl)[i-1]));
+		    vrais = vrais + REAL(nb)[i] * (log(T/(4.0*M_PI*D*t*(T-t))) - 
+						   R_pow(d,2.0)/(4.0*D*t*(T-t)/T));
+		    k++;
+		}
+	    } 
+	} else {
+	    k=0;
+	}
+    }
+    return(vrais);
+}
+
+
+SEXP Dmvb(SEXP df, SEXP Dr, SEXP pcr, SEXP nbr, SEXP kk)
+{
+    SEXP xl, yl, da, D, sor, pc, nb;
+    double fx1, fx2, fx3, fx4, x1, x2, x3, x4, phi;
+    int ndr, conv, k;
+    
+    ndr = length(Dr);
+    PROTECT(D = coerceVector(Dr, REALSXP));
+    PROTECT(pc = coerceVector(pcr, INTSXP));
+    PROTECT(xl = coerceVector(VECTOR_ELT(df,0), REALSXP));
+    PROTECT(yl = coerceVector(VECTOR_ELT(df,1), REALSXP));
+    PROTECT(da = coerceVector(VECTOR_ELT(df,2), REALSXP));
+    PROTECT(sor = allocVector(REALSXP, 2));
+    PROTECT(nb = coerceVector(nbr, REALSXP));
+    k = INTEGER(kk)[0];
+    
+    /* Golden section search */
+    x1 = REAL(D)[0];
+    x3 = REAL(D)[1];
+    phi = (-1.0 + sqrt(5.0))/2.0;
+    fx1 = calcvb(xl, yl, da, x1, pc, nb, k);
+    fx3 = calcvb(xl, yl, da, x3, pc, nb, k);
+    
+    conv = 0;
+    while (!conv) {
+	x2 = x3 - phi*(x3-x1);
+	x4 = x1 + phi*(x3-x1);
+	fx2 = calcvb(xl, yl, da, x2, pc, nb, k);
+	fx4 = calcvb(xl, yl, da, x4, pc, nb, k);
+
+	if (fx2 < fx4) {
+	    x1 = x2;
+	    fx1 = fx2;
+	} else {
+	    x3 = x4;
+	}
+	if (fabs(x3-x1)<0.00000001) {
+	    conv = 1;
+	    x4 = (x3+x1)/2.0;
+	}
+    }
+    REAL(sor)[0] = compteN(xl, pc, k);
+    REAL(sor)[1] = x4;
+
+
+    UNPROTECT(7);
+    return(sor);
+}
+
+
+/* *************************************************** */
+
+SEXP contrastM(SEXP serie, SEXP Lminr, SEXP type, SEXP ldr)
+{
+    int n, nd, i, j, Lmin, typei, ld, lmind;
+    double *matr, moy, *serier, *x, *x2, *xi, *x2i;
+    SEXP mat, seriec, Lminc, typec, ldc, xr, x2r, xir, x2ir;
+
+    /* parameters */
+    PROTECT(seriec = coerceVector(serie, REALSXP));
+    PROTECT(Lminc = coerceVector(Lminr, INTSXP));
+    PROTECT(typec = coerceVector(type, INTSXP));
+    PROTECT(ldc = coerceVector(ldr, INTSXP));
+    ld = INTEGER(ldc)[0];
+    Lmin = INTEGER(Lminc)[0];
+    typei = INTEGER(typec)[0];
+    
+    /* calculation of the grid */
+    n = length(serie);
+    nd = n;
+    n = (int)  ((double) nd)/((double) (ld)); /* similar to floor for positive integer. Truncates the fractional part */
+    if (Lmin < ld)
+	error("'Lmin' should be greater than ld");
+    if ((Lmin % ld) != 0)
+	error("'Lmin' should be a multiple of ld");
+    lmind = Lmin / ld;
+    
+    /* contrast matrix calculated for each point of the grid */
+    PROTECT(mat = allocMatrix(REALSXP, n, n));
+    serier = REAL(seriec);
+    matr = REAL(mat);
+    
+    /* fill the contrast matrix with large values */
+    for (i = 0; i < n; i++) {
+	for (j = 0; j < n; j++) {
+	    matr[i+j*n] = 1000000000000000;
+	}
+    }    
+    
+    switch (typei) {
+	
+    case 1: /* Change in the mean */
+	/* calculation of the new x and x2 */
+	PROTECT(xr = allocVector(REALSXP, n));
+	PROTECT(x2r = allocVector(REALSXP, n));
+	PROTECT(xir = allocVector(REALSXP, n));
+	PROTECT(x2ir = allocVector(REALSXP, n));
+	x = REAL(xr);
+	x2 = REAL(x2r);
+	xi = REAL(xir);
+	x2i = REAL(x2ir);
+	
+	/* sum of the series and squared series */
+	for (i = 0; i < n; i++) {
+	    x[i] = 0.0;
+	    x2[i] = 0.0;
+	    for (j = 0; j < ld; j++) {
+		x[i] = x[i] + serier[(ld*i) + j];
+		x2[i] = x2[i] + R_pow(serier[(ld*i) + j], 2.0);
+	    }
+	}
+	
+	/* cumsum of x2 and x */
+	xi[0] = x[0];
+	x2i[0] = x2[0];
+	for (i = 1; i < n; i++) {
+	    xi[i] = xi[i-1] + x[i];
+	    x2i[i] = x2i[i-1] + x2[i];
+	}
+	
+	/* fill the first row of the contrast matrix */
+	for (i = (lmind-1); i < n; i++) {
+	    matr[0 + i*n] = x2i[i] - (R_pow(xi[i], 2.0)/((double) ((i+1)*ld)));
+	}
+	
+	/* fill the rest of the matrix */
+	for (i = 1; i < (n - lmind + 1); i++) {
+	    
+	    for (j = 0; j < n; j++) {
+		x2i[j] = x2i[j]-x2[i-1];
+		xi[j] = xi[j]-x[i-1];
+	    }
+	    
+	    for (j = (i + lmind - 1); j < n; j++) {
+		matr[i + j*n] = x2i[j] - (R_pow(xi[j], 2.0)/((double) ( (j-i+1)*ld)));
+	    }
+	}
+	UNPROTECT(4);
+	
+	break;
+
+
+    case 2: /* Change in the variance */
+	moy = 0.0;
+	for (i = 0; i < nd; i++) {
+	    moy = moy + serier[i];
+	}
+	moy = moy /((double) nd);
+
+	/* calculation of the new x and x2 */
+	PROTECT(x2r = allocVector(REALSXP, n));
+	PROTECT(x2ir = allocVector(REALSXP, n));
+	x2 = REAL(x2r);
+	x2i = REAL(x2ir);
+	
+	/* sum of the squared series */
+	for (i = 0; i < n; i++) {
+	    x2[i] = 0;
+	    for (j = 0; j < ld; j++) {
+		x2[i] = x2[i] + R_pow(serier[(ld*i) + j] - moy, 2.0);
+	    }
+	}
+	
+	/* cumsum of x2 and x */
+	x2i[0] = x2[0];
+	for (i = 1; i < n; i++) {
+	    x2i[i] = x2i[i-1] + x2[i];
+	}
+	
+	/* fill the first row of the contrast matrix */
+	for (i = (lmind-1); i < n; i++) {
+	    matr[0 + i * n] = ((double) ((i+1)*ld)) * log(x2i[i]/((double) ((i+1)*ld)));
+	}
+	
+	/* fill the rest of the matrix */
+	for (i = 1; i < (n - lmind + 1); i++) {
+	    
+	    for (j = 0; j < n; j++) {
+		x2i[j] = x2i[j]-x2[i-1];
+	    }
+	    
+	    for (j = (i + lmind - 1); j < n; j++) {
+		matr[i + j*n] = ((double) ( (j-i+1)*ld)) * log(x2i[j]/((double) ( (j-i+1)*ld)));
+	    }
+	}
+	UNPROTECT(2);
+	break;
+	
+	
+	
+    case 3: /* Change in the mean and variance */	
+	/* calculation of the new x and x2 */
+	PROTECT(xr = allocVector(REALSXP, n));
+	PROTECT(x2r = allocVector(REALSXP, n));
+	PROTECT(xir = allocVector(REALSXP, n));
+	PROTECT(x2ir = allocVector(REALSXP, n));
+	x = REAL(xr);
+	x2 = REAL(x2r);
+	xi = REAL(xir);
+	x2i = REAL(x2ir);
+	
+	/* sum of the series and squared series */
+	for (i = 0; i < n; i++) {
+	    x[i] = 0.0;
+	    x2[i] = 0.0;
+	    for (j = 0; j < ld; j++) {
+		x[i] = x[i] + serier[(ld*i) + j];
+		x2[i] = x2[i] + R_pow(serier[(ld*i) + j], 2.0);
+	    }
+	}
+	
+	/* cumsum of x2 and x */
+	xi[0] = x[0];
+	x2i[0] = x2[0];
+	for (i = 1; i < n; i++) {
+	    xi[i] = xi[i-1] + x[i];
+	    x2i[i] = x2i[i-1] + x2[i];
+	}
+
+	/* fill the first row of the contrast matrix */
+	for (i = (lmind-1); i < n; i++) {
+	    matr[0 + i*n] = ((double) ((i+1)*ld)) * 
+		log((x2i[i] - (R_pow(xi[i], 2.0)/((double) ((i+1)*ld))))/((double) ((i+1)*ld)));
+	}
+
+	/* fill the rest of the matrix */
+	for (i = 1; i < (n - lmind + 1); i++) {
+	    
+	    for (j = 0; j < n; j++) {
+		x2i[j] = x2i[j]-x2[i-1];
+		xi[j] = xi[j]-x[i-1];
+	    }
+	    
+	    for (j = (i + lmind - 1); j < n; j++) {
+		matr[i + j*n] = ((double) ((j-i+1)*ld)) * 
+		    log((x2i[i] - (R_pow(xi[i], 2.0)/((double) ((j-i+1)*ld))))/((double) ((j-i+1)*ld)));
+	    }
+	}
+	UNPROTECT(4);
+	
+	break;
+
+    default:
+	Rprintf("No value passed for type\n");
+	break;
+
+    }
+    UNPROTECT(5);
+    return(mat);
+}
+
+
+SEXP dynprog(SEXP mat, SEXP Kmaxr)
+{
+    int n2, n, i, j, k, L, Kmax, wmi, *ti;
+    double mi, tmp, *matr, *Ir;
+    SEXP I, t, Kmaxi, so;
+    
+    n2 = length(mat);
+    n = sqrt(n2);
+    PROTECT(Kmaxi = coerceVector(Kmaxr, INTSXP));
+    Kmax = INTEGER(Kmaxi)[0];
+    PROTECT(I = allocMatrix(REALSXP, Kmax, n));
+    PROTECT(t = allocMatrix(INTSXP, Kmax, n));
+    n2 = n * Kmax;
+    Ir = REAL(I);
+    matr = REAL(mat);
+    ti = INTEGER(t);
+    mi = 0.0;
+    wmi = 0.0;
+    
+    for (i = 0; i < n2; i++) {
+	Ir[i] = 1000000000000000;
+	ti[i] = 0;
+    }
+    for (i = 0; i < n; i++) {
+	Ir[Kmax*i] = matr[n*i];
+    }
+    tmp = 0.0;
+    
+    if (Kmax > 2) {
+	for (k = 2; k <= Kmax-1; k++) {
+	    for (L = k; L <= n; L++) {
+		for (j = 1; j <= L-1; j++) {
+		    tmp = Ir[k-2 + Kmax * (j-1)]+matr[j+n*(L-1)];
+		    if (j==1) {
+			mi = tmp;
+			wmi = j;
+		    } else {
+			if (tmp < mi) {
+			    mi = tmp;
+			    wmi = j;
+			}
+		    }
+		}
+		Ir[k-1 + Kmax*(L-1)] = mi;
+		ti[k-1 + Kmax*(L-1)] = wmi;
+	    }
+	}
+    }
+    
+    PROTECT(so = allocVector(VECSXP, 2));
+    SET_VECTOR_ELT(so, 0, I);
+    SET_VECTOR_ELT(so, 1, t);
+    UNPROTECT(4);
+    return(so);
+}
+
+
+
+SEXP findpath(SEXP matr, SEXP Kr, SEXP Kmax)
+{
+    SEXP so, Kc, matc;
+    int K, i, *sor, n2, n, *mat, Km;
+    
+    /* size of the matrix */
+    n2 = length(matr);
+    Km = INTEGER(Kmax)[0]+1;
+    n = n2/Km;
+
+    /* Coercion of the arguments -> integer */
+    PROTECT(Kc = coerceVector(Kr, INTSXP));
+    PROTECT(matc = coerceVector(matr, INTSXP));
+
+    /* Usefull for further analysis */
+    mat = INTEGER(matc);
+    K = INTEGER(Kc)[0];
+    
+    /* Output vector */
+    PROTECT(so = allocVector(INTSXP, K));
+    sor = INTEGER(so);
+
+    /* On rajoute 1 pour la sortie sous R */
+    sor[0] = mat[K-1+Km*(n-1)]+1;
+    for (i = 1; i < K; i++) {
+	sor[i] = mat[K-1-i + Km*(sor[i-1]-1)]+1;
+    }
+    
+    UNPROTECT(3);
+    return(so);
+}
+
+
+/* Calculation of the residence time */
+
+
+SEXP residtime(SEXP xyt, SEXP distr, SEXP maxt)
+{
+    /* declaring the variables */
+    int n,i, j, *deds, sortie;
+    double *xr, *yr, *tr, dist, maxtr, *resur, bti, fti, limitr, refti, a, u, v, p, lrb, lrf;
+    SEXP x, y, t, dedsr, resu;
+    
+    /* coercing the arguments */
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+
+    n = length(x); /* number of relocations */
+    PROTECT(dedsr = allocVector(INTSXP, n)); /* will be used to check whether the relocation j
+						is within the distance distr of the relocation i */
+    PROTECT(resu = allocVector(REALSXP, n)); /* the output vector */
+
+
+    /* for the ease of manipulation: gets the pointers */
+    resur=REAL(resu);
+    xr = REAL(x);
+    yr = REAL(y);
+    tr = REAL(t);
+    deds = INTEGER(dedsr);
+
+    /* get the two constants passed as arguments */
+    maxtr = REAL(maxt)[0];
+    dist = REAL(distr)[0];
+
+    /* Now, calculate the residence time for each relocation */
+    for (i = 0; i < n; i++) {
+	
+	/* checks which relocations are within the distance dist from reloc j */
+	for (j = 0; j < n; j++) {
+	    if (hypot(xr[i]-xr[j], yr[i]-yr[j])<=dist) {
+		deds[j] = 1;
+	    } else {
+		deds[j] = 0;
+	    }
+	}
+	
+	/* calculates the backward time */
+	sortie = 0; /* = 0 when the animal is still inside the circle; =1 otherwise */
+	limitr = -5.0; /* used to store the time point when the animal goes out of the circle.
+			  Negative if the animal never goes out
+			*/
+	refti = tr[i]; /* reference time */
+	bti = 0.0; /* The backward time */
+	
+	
+	/* if this is not the first relocation (if it is, bti = 0) */
+	if (i != 0) {
+	    
+	    /* for all previous relocations (because backward) */
+	    for (j = i-1; j>=0; j--) {
+		
+		/* if the relocation is outside the circle */
+		if (deds[j]==0) {
+		    
+		    /* if this is the first relocation outside */
+		    if (sortie==0) {
+			
+			/* interpolating the time when the animal came in
+			   of the circle */
+			a = atan2(yr[j]-yr[j+1], xr[j]-xr[j+1]);
+			u = ((xr[i]-xr[j+1])*cos(a))+((yr[i]-yr[j+1])*sin(a));
+			v = ((yr[i]-yr[j+1])*cos(a))-((xr[i]-xr[j+1])*sin(a));
+			p = (sqrt(R_pow(dist, 2.0) - R_pow(v, 2.0))-fabs(u))/
+			    hypot(xr[j]-xr[j+1], yr[j]-yr[j+1]);
+			limitr = tr[j+1] - p*(tr[j+1]-tr[j]);
+			bti = bti + fabs(refti- limitr);
+			sortie = 1;
+		    } else {
+			/* checks whether the
+			   time is too long outside the circle. In this case,
+			   break the loop. */
+			if (fabs(limitr - tr[j]) > maxtr) {
+			    break;
+			}
+		    }
+		} else {
+		    if (sortie>0) {
+			/* interpolating the time when the animal came out of
+			   the circle */
+			a = atan2(yr[j+1]-yr[j], xr[j+1]-xr[j]);
+			u = ((xr[i]-xr[j])*cos(a))+((yr[i]-yr[j])*sin(a));
+			v = ((yr[i]-yr[j])*cos(a))-((xr[i]-xr[j])*sin(a));
+			p = (sqrt(R_pow(dist, 2.0) - R_pow(v, 2.0))-fabs(u))/
+			    hypot(xr[j]-xr[j+1], yr[j]-yr[j+1]);
+			refti = tr[j] + p*(tr[j+1]-tr[j]);
+			if (fabs(refti - limitr)> maxtr)
+			    break;
+			bti = bti + fabs(tr[j] - refti);
+			refti = tr[j];
+			sortie = 0;
+		    } else {
+			bti = bti + fabs(refti - tr[j]);
+			refti = tr[j];
+		    }
+		}
+	    }
+	}
+
+	/* stores the value of limitr (whether the animal came out of the circle */
+	lrb = limitr;
+
+
+	/* forward time */
+	sortie = 0;
+	limitr = -5.0;
+	refti = tr[i];
+	fti = 0.0; /* forward time */
+	
+	/* if this is not the last relocation (otherwise, fti = 0.0) */
+	if (i < (n-1)) {
+	    
+	    /* for all next relocations */
+	    for (j = i+1; j<n; j++) {
+		
+		/* if the relocation is outside the circle */
+		if (deds[j]==0) {
+		    
+		    /* if this is the first relocation outside */
+		    if (sortie==0) {
+			/* interpolating the time when the animal come out
+			   of the circle
+			 */
+			a = atan2(yr[j]-yr[j-1], xr[j]-xr[j-1]);
+			u = ((xr[i]-xr[j-1])*cos(a))+((yr[i]-yr[j-1])*sin(a));
+			v = ((yr[i]-yr[j-1])*cos(a))-((xr[i]-xr[j-1])*sin(a));
+			p = (sqrt(R_pow(dist, 2.0) - R_pow(v, 2.0))-fabs(u))/
+			    hypot(xr[j]-xr[j-1], yr[j]-yr[j-1]);
+			limitr = tr[j-1] + p*(tr[j]-tr[j-1]);
+			fti = fti + fabs(limitr - refti);
+			sortie = 1;
+		    } else {
+			/* if it is not the first relocation: checks whether the
+			   time is too long outside the circle. In this case,
+			   break the loop. */
+			if (fabs(tr[j] - limitr) > maxtr) {
+			    break;
+			}
+		    }
+		} else {
+		    if (sortie>0) {
+			/* interpolating the time when the animal came in
+			   the circle */
+			a = atan2(yr[j-1]-yr[j], xr[j-1]-xr[j]);
+			u = ((xr[i]-xr[j])*cos(a))+((yr[i]-yr[j])*sin(a));
+			v = ((yr[i]-yr[j])*cos(a))-((xr[i]-xr[j])*sin(a));
+			p = (sqrt(R_pow(dist, 2.0) - R_pow(v, 2.0))-fabs(u))/
+			    hypot(xr[j]-xr[j-1], yr[j]-yr[j-1]);
+			refti = tr[j] - p*(tr[j]-tr[j-1]);
+			if (fabs(refti - limitr)> maxtr)
+			    break;
+			fti = fti + fabs(tr[j] - refti);
+			refti = tr[j];
+			sortie = 0;
+		    } else {
+			fti = fti + fabs(tr[j] - refti);
+			refti = tr[j];
+		    }
+		}
+	    }
+	}
+	lrf = limitr;
+	resur[i] = bti+fti;
+	if ((lrb < 0)||(lrf < 0))
+	    resur[i] = NA_REAL;
+    }
+    
+    UNPROTECT(5);
+    
+    /* output */
+    return(resu);
+    
+}
+
+
+/* ******************************* */
+/* Discretization of a trajectory with constant time lag */
+
+SEXP redistime(SEXP xyt, SEXP tlr, SEXP sam0r)
+{
+    int n, i, nn, cur;
+    SEXP x, y, t, xn, yn, tn, dfso;
+    double *xr, *yr, *tr, *xnr, *ynr, *tnr, tp, tl, u, sam0, xp, yp, tlc;
+    
+    /* coercing the arguments */
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+    xr = REAL(x);
+    yr = REAL(y);
+    tr = REAL(t);
+    tl = REAL(tlr)[0];
+    sam0 = REAL(sam0r)[0];
+    n = length(x);
+    
+    /* New number of relocations */
+    nn = (int) (round((tr[n-1]-tr[0])/tl)+2);
+    PROTECT(xn = allocVector(REALSXP, nn));
+    PROTECT(yn = allocVector(REALSXP, nn));
+    PROTECT(tn = allocVector(REALSXP, nn));
+    xnr = REAL(xn);
+    ynr = REAL(yn);
+    tnr = REAL(tn);
+
+    for (i = 0; i < n; i++) {
+	tnr[i] = -10.0;
+	xnr[i] = -10.0;
+	ynr[i] = -10.0;
+    }
+    
+    /* Sample the first relocation ? */
+    if (sam0>0.5) {
+	GetRNGstate();
+	u = unif_rand();
+	PutRNGstate();
+	xnr[0] = xr[0]+u*(xr[1]-xr[0]);
+	ynr[0] = yr[0]+u*(yr[1]-yr[0]);
+	tnr[0] = tr[0]+u*(tr[1]-tr[0]);
+    } else {
+	xnr[0] = xr[0];
+	ynr[0] = yr[0];
+	tnr[0] = tr[0];
+    }
+    cur = 0;
+    tp = tnr[0];
+    xp = xnr[0];
+    yp = ynr[0];
+    tlc = tl;
+    
+    /* */
+    for (i = 1; i < n; i++) {
+	while ((tr[i] - tp) > tlc) {
+	    tnr[cur+1] = tp + tlc;
+	    xnr[cur+1] = xp + (tlc/(tr[i] - tp))*(xr[i]-xp);
+	    ynr[cur+1] = yp + (tlc/(tr[i] - tp))*(yr[i]-yp);
+	    cur++;
+	    tp = tnr[cur];
+	    xp = xnr[cur];
+	    yp = ynr[cur];
+	    tlc = tl;
+	}
+	tlc = tlc - (tr[i]-tp);
+	tp = tr[i];
+	xp = xr[i];
+	yp = yr[i];
+    }
+    if (cur < nn-1) {
+	for (i=(cur+1); i<nn; i++) {
+	    tnr[i] = -10;
+	    xnr[i] = -10;
+	    ynr[i] = -10;
+	}
+    }
+    
+    PROTECT(dfso = allocVector(VECSXP, 3));
+    SET_VECTOR_ELT(dfso, 0, xn);
+    SET_VECTOR_ELT(dfso, 1, yn);
+    SET_VECTOR_ELT(dfso, 2, tn);
+
+    UNPROTECT(7);
+    return(dfso);
+}
+
+
+/* ************************************************** */
+
+/* Random direction herd */
+SEXP tr_randomDirection(SEXP xyt, SEXP par1, SEXP par2, SEXP parcon, 
+			SEXP traitement, SEXP constraint)
+{
+    int n, i, ok;
+    SEXP x, y, alpha, xyso, xn, yn, t, resu, env, resucont;
+    double *xr, *yr, *alphar, *ynr, *xnr, d2;
+    
+    /* checks the arguments */
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+    n = length(x);
+    PROTECT(alpha = allocVector(REALSXP, n-1));
+    PROTECT(xn = allocVector(REALSXP, n));
+    PROTECT(yn = allocVector(REALSXP, n));
+    PROTECT(env = VECTOR_ELT(par1,0));
+    if(!isEnvironment(env)) error("'env' should be an environment");
+    
+    /* get the pointers */
+    xnr = REAL(xn);
+    ynr = REAL(yn);
+    xr = REAL(x);
+    yr = REAL(y);
+    alphar = REAL(alpha);
+    ok = 0;
+    
+    /* while the trajectory does not satisfy the constraints */
+    while (ok==0) {
+
+	/* sample random angles */
+	GetRNGstate();
+	for (i=0; i < (n-1); i++) {
+	    alphar[i] = unif_rand()*2*M_PI;
+	}
+	PutRNGstate();
+	
+	/* define the first relocation */
+	xnr[0] = xr[0];
+	ynr[0] = yr[0];
+	
+	/* and the following */
+	for (i=1; i < n; i++) {
+	    d2 = hypot(xr[i]-xr[i-1], yr[i]-yr[i-1]);
+	    xnr[i] = xnr[i-1] + d2*cos(alphar[i]);
+	    ynr[i] = ynr[i-1] + d2*sin(alphar[i]);
+	}
+	
+	/* prepares the data.frame storing the results */
+	PROTECT(xyso = allocVector(VECSXP, 3));
+	SET_VECTOR_ELT(xyso, 0, xn);
+	SET_VECTOR_ELT(xyso, 1, yn);
+	SET_VECTOR_ELT(xyso, 2, t);
+	
+	/* checks whether the constraints are satisfied */
+	defineVar(install("x"), xyso, env);
+	defineVar(install("par"), parcon, env);
+	PROTECT(resucont = coerceVector(eval(constraint, env), INTSXP));
+	ok = INTEGER(resucont)[0];
+	if (ok!=1) {
+	    UNPROTECT(2);
+	}
+    }
+    
+    defineVar(install("x"), xyso, env);
+    defineVar(install("par"), par2, env);
+    PROTECT(resu = eval(traitement, env));
+    UNPROTECT(10);
+    return(resu);
+    
+}
+
+
+
+
+
+SEXP tr_randomRotation(SEXP xyt, SEXP par1, SEXP par2, SEXP parcon,
+		       SEXP traitement, SEXP constraint)
+{
+    int n, i, ok;
+    SEXP x, y, xyso, xn, yn, t, resu, env, resucont;
+    double *xr, *yr, alpha, alph2, *ynr, *xnr, d2, xm, ym;
+        
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+    PROTECT(env = VECTOR_ELT(par1,0));
+    n = length(x);
+    ok = 0;
+    
+    PROTECT(xn = allocVector(REALSXP, n));
+    PROTECT(yn = allocVector(REALSXP, n));
+    if(!isEnvironment(env)) error("'env' should be an environment");
+    
+    xnr = REAL(xn);
+    ynr = REAL(yn);
+    xr = REAL(x);
+    yr = REAL(y);
+    
+    /* random rotation */
+    ok = 0;
+    while (ok == 0) {
+	GetRNGstate();
+	alpha = unif_rand()*2*M_PI;
+	PutRNGstate();
+	
+	/* the centroid */
+	xm = 0;
+	ym = 0;
+	for (i = 0; i < n; i++) {
+	    xm = xm + xr[i];
+	    ym = ym + yr[i];	
+	}
+	xm = xm / ((double) n);
+	ym = ym / ((double) n);
+	
+	/* rotations */
+	for (i=0; i < n; i++) {
+	    d2 = hypot(xr[i]-xm, yr[i]-ym);
+	    alph2 = atan2(yr[i]-ym, xr[i]-xm);
+	    alph2= alph2+alpha;
+	    xnr[i] = xm + d2*cos(alph2);
+	    ynr[i] = ym + d2*sin(alph2);
+	}
+	
+	PROTECT(xyso = allocVector(VECSXP, 3));
+	SET_VECTOR_ELT(xyso, 0, xn);
+	SET_VECTOR_ELT(xyso, 1, yn);
+	SET_VECTOR_ELT(xyso, 2, t);
+	
+	/* checks whether the constraints are satisfied */
+	defineVar(install("x"), xyso, env);
+	defineVar(install("par"), parcon, env);
+
+	PROTECT(resucont = coerceVector(eval(constraint, env), INTSXP));
+	ok = INTEGER(resucont)[0];
+	if (ok!=1) {
+	    UNPROTECT(2);
+	}
+    }
+    
+    defineVar(install("x"), xyso, env);
+    defineVar(install("par"), par2, env);
+    PROTECT(resu = eval(traitement, env));
+    
+    UNPROTECT(9);
+    return(resu);
+    
+}
+
+
+
+
+SEXP tr_randomShiftRotation(SEXP xyt, SEXP par1, SEXP par2, SEXP parcon,
+			    SEXP traitement, SEXP constraint)
+{
+    int n, i, ok;
+    SEXP x, y, xyso, xn, yn, t, resu, env, rax, ray, resucont, rshift, rrot;
+    SEXP namecol, namerow, classdf;
+    double *xr, *yr, alpha, alph2, *ynr, *xnr, d2, xm, ym, xmn, ymn;
+    
+    /* coercion */
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+    PROTECT(env = VECTOR_ELT(par1,0));
+    if(!isEnvironment(env)) error("'env' should be an environment");
+    
+    PROTECT(rshift = coerceVector(VECTOR_ELT(par1,1), INTSXP));
+    PROTECT(rrot = coerceVector(VECTOR_ELT(par1,2), INTSXP));
+    PROTECT(rax = coerceVector(VECTOR_ELT(par1,3), REALSXP));
+    PROTECT(ray = coerceVector(VECTOR_ELT(par1,4), REALSXP));
+    n = length(x);
+    xmn = 0.0;
+    ymn = 0.0;
+    
+    /* new vectors */
+    PROTECT(xn = allocVector(REALSXP, n));
+    PROTECT(yn = allocVector(REALSXP, n));
+    
+    /* prepares the attributes of the output data.frame */
+    /* row.names */
+    PROTECT(namerow = getAttrib(xyt, R_RowNamesSymbol)); 
+    /* names */
+    PROTECT(namecol = allocVector(STRSXP, 3)); 
+    SET_STRING_ELT(namecol, 0, mkChar("x"));
+    SET_STRING_ELT(namecol, 1, mkChar("y"));
+    SET_STRING_ELT(namecol, 2, mkChar("date"));
+    /* class */
+    PROTECT(classdf = allocVector(STRSXP, 1));
+    SET_STRING_ELT(classdf, 0, mkChar("data.frame"));
+    
+    
+    xnr = REAL(xn);
+    ynr = REAL(yn);
+    xr = REAL(x);
+    yr = REAL(y);
+    
+    /* random rotation */
+    ok = 0;
+    while (ok == 0) {
+	R_CheckUserInterrupt();
+	GetRNGstate();
+	if (INTEGER(rrot)[0]>0) {
+	    alpha = unif_rand()*2*M_PI;
+	} else {
+	    alpha = 0;
+	}
+	if (INTEGER(rshift)[0]>0) {
+	    xmn = REAL(rax)[0] + unif_rand()*(REAL(rax)[1]-REAL(rax)[0]);
+	    ymn = REAL(ray)[0] + unif_rand()*(REAL(ray)[1]-REAL(ray)[0]);
+	}
+	PutRNGstate();
+	
+	/* the centroid */
+	xm = 0;
+	ym = 0;
+	for (i = 0; i < n; i++) {
+	    xm = xm + xr[i];
+	    ym = ym + yr[i];	
+	}
+	xm = xm / ((double) n);
+	ym = ym / ((double) n);
+	if (INTEGER(rshift)[0]==0) {
+	    xmn = xm;
+	    ymn = ym;
+	}
+	
+	/* rotations */
+	for (i=0; i < n; i++) {
+	    d2 = hypot(xr[i]-xm, yr[i]-ym);
+	    alph2 = atan2(yr[i]-ym, xr[i]-xm);
+	    alph2= alph2+alpha;
+	    xnr[i] = xmn + d2*cos(alph2);
+	    ynr[i] = ymn + d2*sin(alph2);
+	}
+	
+	PROTECT(xyso = allocVector(VECSXP, 3));
+	SET_VECTOR_ELT(xyso, 0, xn);
+	SET_VECTOR_ELT(xyso, 1, yn);
+	SET_VECTOR_ELT(xyso, 2, t);
+	
+	/* define class and attributes */
+	classgets(xyso, classdf);
+	setAttrib(xyso, R_NamesSymbol, namecol);
+	setAttrib(xyso, R_RowNamesSymbol, namerow);
+	
+	/* checks whether the constraints are satisfied */
+	defineVar(install("x"), xyso, env);
+	defineVar(install("par"), parcon, env);
+
+	PROTECT(resucont = coerceVector(eval(constraint, env), INTSXP));
+	ok = INTEGER(resucont)[0];
+	if (ok!=1) {
+	    UNPROTECT(2);
+	}
+	
+    }
+    
+    defineVar(install("x"), xyso, env);
+    defineVar(install("par"), par2, env);
+    PROTECT(resu = eval(traitement, env));
+    
+    UNPROTECT(16);
+    return(resu);
+    
+}
+
+
+
+
+
+SEXP tr_randomRotationCs(SEXP xyt, SEXP par1, SEXP par2, SEXP parcon,
+			 SEXP traitement, SEXP constraint)
+{
+    int n, i, ok, nani, ncs;
+    SEXP x, y, xyso, xn, yn, t, resu, env, resucont, rDistCs;
+    SEXP rAngleCs, rCentroidAngle, cs, distances;
+    SEXP namecol, namerow, classdf, samCs, rCs;
+    double *xr, *yr, alpha, alpha2, alph2, *ynr, *xnr, d2, xm, ym, xmn, ymn, dist, *csr;
+    
+    /* coercion */
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+    PROTECT(env = VECTOR_ELT(par1,0));
+    if(!isEnvironment(env)) error("'env' should be an environment");
+
+    PROTECT(rDistCs = coerceVector(VECTOR_ELT(par1,1), INTSXP));
+    PROTECT(rAngleCs = coerceVector(VECTOR_ELT(par1,2), INTSXP));
+    PROTECT(rCentroidAngle = coerceVector(VECTOR_ELT(par1,3), INTSXP));
+    PROTECT(cs = coerceVector(VECTOR_ELT(par1,4), REALSXP));
+
+    PROTECT(distances = coerceVector(VECTOR_ELT(par1,5), REALSXP));
+    PROTECT(rCs = coerceVector(VECTOR_ELT(par1, 6), INTSXP));
+    samCs = VECTOR_ELT(par1, 7);
+
+    ncs = length(samCs);
+    n = length(x);
+    nani = length(distances);
+    xmn = 0.0;
+    ymn = 0.0;
+    
+    /* new vectors */
+    PROTECT(xn = allocVector(REALSXP, n));
+    PROTECT(yn = allocVector(REALSXP, n));
+    
+    /* some pointers */
+    xnr = REAL(xn);
+    ynr = REAL(yn);
+    xr = REAL(x);
+    yr = REAL(y);
+    xmn = 0.0;
+    ymn = 0.0;
+    
+    /* the centroid */
+    xm = 0;
+    ym = 0;
+    for (i = 0; i < n; i++) {
+	xm = xm + xr[i];
+	ym = ym + yr[i];	
+    }
+    xm = xm / ((double) n);
+    ym = ym / ((double) n);
+    
+
+    /* prepares the attributes of the output data.frame */
+    /* row.names */
+    PROTECT(namerow = getAttrib(xyt, R_RowNamesSymbol)); 
+    /* names */
+    PROTECT(namecol = allocVector(STRSXP, 3)); 
+    SET_STRING_ELT(namecol, 0, mkChar("x"));
+    SET_STRING_ELT(namecol, 1, mkChar("y"));
+    SET_STRING_ELT(namecol, 2, mkChar("date"));
+    /* class */
+    PROTECT(classdf = allocVector(STRSXP, 1));
+    SET_STRING_ELT(classdf, 0, mkChar("data.frame"));
+    
+    
+    
+    ok = 0;
+    while (ok == 0) {
+
+	R_CheckUserInterrupt();
+	
+	/* random choice of the capture site */
+	if (INTEGER(rCs)[0]>0) {
+	    GetRNGstate();
+	    i = (int) floor(unif_rand()*((double) ncs));
+	    PutRNGstate();
+	    csr = REAL(VECTOR_ELT(samCs, i));
+	} else {
+	    csr = REAL(cs);
+	}
+
+	
+	/* random rotation around the centroid */   
+	if (INTEGER(rCentroidAngle)[0]>0) {
+	    GetRNGstate();
+	    alpha = unif_rand()*2*M_PI;
+	    PutRNGstate();
+	} else {
+	    alpha = 0;
+	}
+	
+	/* random rotation around the capture site */
+	if (INTEGER(rAngleCs)[0]>0) {
+	    GetRNGstate();
+	    alpha2 = unif_rand()*2*M_PI;
+	    PutRNGstate();
+	} else {
+	    alpha2 = atan2(ym-csr[1], xm-csr[0]);
+	}
+	
+	/* random choice of a distance to the capture site */
+	if (INTEGER(rDistCs)[0]>0) {
+	    GetRNGstate();
+	    i = (int) floor(unif_rand()*((double) nani));
+	    PutRNGstate();
+	    dist = REAL(distances)[i];
+	} else {
+	    dist = hypot(xm-csr[0], ym-csr[1]);
+	}
+		
+	/* update the coordinates of the centroid after randomization */
+	xmn = csr[0] + dist*cos(alpha2);
+	ymn = csr[1] + dist*sin(alpha2);
+	
+	/* update the coordinates of the relocations */
+	for (i=0; i < n; i++) {
+	    d2 = hypot(xr[i]-xm, yr[i]-ym);
+	    alph2 = atan2(yr[i]-ym, xr[i]-xm);
+	    alph2= alph2+alpha;
+	    xnr[i] = xmn + d2*cos(alph2);
+	    ynr[i] = ymn + d2*sin(alph2);
+	}	
+	
+	/* build the object */
+	PROTECT(xyso = allocVector(VECSXP, 3));
+	SET_VECTOR_ELT(xyso, 0, xn);
+	SET_VECTOR_ELT(xyso, 1, yn);
+	SET_VECTOR_ELT(xyso, 2, t);
+	
+	/* define class and attributes */
+	classgets(xyso, classdf);
+	setAttrib(xyso, R_NamesSymbol, namecol);
+	setAttrib(xyso, R_RowNamesSymbol, namerow);
+	
+	/* checks whether the constraints are satisfied */
+	defineVar(install("x"), xyso, env);
+	defineVar(install("par"), parcon, env);
+
+	PROTECT(resucont = coerceVector(eval(constraint, env), INTSXP));
+	ok = INTEGER(resucont)[0];
+	if (ok!=1) {
+	    UNPROTECT(2);
+	}
+	
+    }
+    
+    defineVar(install("x"), xyso, env);
+    defineVar(install("par"), par2, env);
+    PROTECT(resu = eval(traitement, env));
+    
+    UNPROTECT(18);
+    return(resu);
+    
+}
+
+
+
+
+
+
+
+SEXP tr_randomCRW(SEXP xyt, SEXP par1, SEXP par2, SEXP parcon,
+		  SEXP traitement, SEXP constraint)
+{
+    int n, i, ok, *permr, *permdr, fs;
+    SEXP x, y, xyso, xn, yn, t, resu, env, alphar, alphaa, dist, resucont, perm, alea, permd;
+    SEXP pa, pd, alead, fixedStart, x0, rx, ry;
+    SEXP namecol, namerow, classdf;
+    double *xr, *yr, *ynr, *xnr, *alpharr, *alphaar, *distr, *alear, *aleadr;
+    double alp, *x0r, *rxr, *ryr;
+    
+    /* the trajectory */
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+        
+    /* The variables used in this prog */
+    PROTECT(env = VECTOR_ELT(par1,0));
+    if(!isEnvironment(env)) error("'env' should be an environment");
+    
+    /* The parameters of the randomization */
+    PROTECT(pa = coerceVector(VECTOR_ELT(par1,1), INTSXP));
+    PROTECT(pd = coerceVector(VECTOR_ELT(par1,2), INTSXP));
+    PROTECT(fixedStart = coerceVector(VECTOR_ELT(par1,3), INTSXP));
+
+    PROTECT(x0 = coerceVector(VECTOR_ELT(par1,4), REALSXP));
+    PROTECT(rx = coerceVector(VECTOR_ELT(par1,5), REALSXP));
+    PROTECT(ry = coerceVector(VECTOR_ELT(par1,6), REALSXP));
+
+    n = length(x);
+    PROTECT(alphar = allocVector(REALSXP,n-2));    
+    PROTECT(perm = allocVector(INTSXP,n-2));    
+    PROTECT(permd = allocVector(INTSXP,n-1));    
+
+    PROTECT(alea = allocVector(REALSXP,n-2));    
+    PROTECT(alead = allocVector(REALSXP,n-1));    
+    PROTECT(alphaa = allocVector(REALSXP,n-1));
+
+    PROTECT(dist = allocVector(REALSXP,n-1));    
+    PROTECT(xn = allocVector(REALSXP, n));
+    PROTECT(yn = allocVector(REALSXP, n));
+
+    /* prepares the attributes of the output data.frame */
+    /* row.names */
+    PROTECT(namerow = getAttrib(xyt, R_RowNamesSymbol)); 
+    /* names */
+    PROTECT(namecol = allocVector(STRSXP, 3)); 
+    SET_STRING_ELT(namecol, 0, mkChar("x"));
+    SET_STRING_ELT(namecol, 1, mkChar("y"));
+    SET_STRING_ELT(namecol, 2, mkChar("date"));
+    /* class */
+    PROTECT(classdf = allocVector(STRSXP, 1));
+    SET_STRING_ELT(classdf, 0, mkChar("data.frame"));
+
+    
+    /* get the pointers */
+    xnr = REAL(xn);
+    ynr = REAL(yn);
+    xr = REAL(x);
+    yr = REAL(y);
+    alphaar = REAL(alphaa);
+    alpharr = REAL(alphar);
+    distr = REAL(dist);
+    permr = INTEGER(perm);
+    alear = REAL(alea);
+    permdr = INTEGER(permd);
+    aleadr = REAL(alead);
+    x0r=REAL(x0);
+    rxr=REAL(rx);
+    ryr=REAL(ry);
+    fs = INTEGER(fixedStart)[0];
+
+    /* calculate relative angles and distance */
+    for (i=1; i<n; i++) {
+	alphaar[i-1] = atan2(yr[i]-yr[i-1], xr[i]-xr[i-1]);
+	distr[i-1] = hypot(yr[i]-yr[i-1], xr[i]-xr[i-1]);
+	if (i>1) {
+	    alpharr[i-2] = alphaar[i-1]-alphaar[i-2];
+	}
+    }
+    
+    /* random permutation of the relative angles and distance */
+    ok = 0;
+    while (ok == 0) {
+	R_CheckUserInterrupt();
+	
+	GetRNGstate();
+	for (i=0; i<n-1; i++) {
+	    if (i<n-2) {
+		if (INTEGER(pa)[0]>0) {
+		    alear[i] = unif_rand();
+		}
+		permr[i] = i;
+	    }
+	    if (INTEGER(pd)[0]>0) {
+		aleadr[i] = unif_rand();
+	    }
+	    permdr[i] = i;
+	}
+	PutRNGstate();
+	if (INTEGER(pa)[0]>0) {
+	    rsort_with_index(alear, permr, n-2);
+	}
+	if (INTEGER(pd)[0]>0) {
+	    rsort_with_index(aleadr, permdr, n-1);
+	}
+	
+	/* calculates the new trajectory */
+	/* if the starting point should be drawn at random */
+	if (fs<1) {
+	    GetRNGstate();
+	    x0r[0] = rxr[0] + unif_rand()*(rxr[1]-rxr[0]);
+	    x0r[1] = ryr[0] + unif_rand()*(ryr[1]-ryr[0]);
+	    PutRNGstate();
+	}
+	xnr[0] = x0r[0];
+	ynr[0] = x0r[1];
+	xnr[1] = xnr[0] + (xr[1]-xr[0]);
+	ynr[1] = ynr[0] + (yr[1]-yr[0]);
+	
+	for (i = 2; i<n; i++) {
+	    alp = atan2(ynr[i-1]-ynr[i-2], xnr[i-1]-xnr[i-2]);
+	    xnr[i] = xnr[i-1] + distr[permdr[i-2]]*cos(alp+alpharr[permr[i-2]]);
+	    ynr[i] = ynr[i-1] + distr[permdr[i-2]]*sin(alp+alpharr[permr[i-2]]);
+	}
+	
+	/* stores the results */
+	PROTECT(xyso = allocVector(VECSXP, 3));
+	SET_VECTOR_ELT(xyso, 0, xn);
+	SET_VECTOR_ELT(xyso, 1, yn);
+	SET_VECTOR_ELT(xyso, 2, t);
+	
+	/* define class and attributes */
+	classgets(xyso, classdf);
+	setAttrib(xyso, R_NamesSymbol, namecol);
+	setAttrib(xyso, R_RowNamesSymbol, namerow);
+
+	/* checks whether the constraints are satisfied */
+	defineVar(install("x"), xyso, env);
+	defineVar(install("par"), parcon, env);
+	PROTECT(resucont = coerceVector(eval(constraint, env), INTSXP));
+	ok = INTEGER(resucont)[0];
+	if (ok!=1) {
+	    UNPROTECT(2);
+	}
+    }
+    
+    /* evaluate the treatment */
+    defineVar(install("x"), xyso, env);
+    defineVar(install("par"), par2, env);
+    PROTECT(resu = eval(traitement, env));
+    
+    /* Return the result */
+    UNPROTECT(25);
+    return(resu);
+}
+
+
+
+SEXP rwrpnorm(int n, double mu, double rho)
+{
+    SEXP so;
+    int i;
+    double *sor, sd;
+    
+    PROTECT(so = allocVector(REALSXP, n));
+    sor = REAL(so);
+    
+    GetRNGstate();
+    if (rho< 1e-12) {
+	for (i=0; i<n; i++) {
+	    sor[i] = (unif_rand()*2*M_PI);
+	}
+    } else {
+	sd = sqrt(-2.0 * log(rho));
+	for (i=0; i<n; i++) {
+	    sor[i] = (mu + norm_rand()*sd);
+	}
+    }
+    PutRNGstate();
+    UNPROTECT(1);
+    return(so);
+}
+
+
+SEXP rchi(int n, double h)
+{
+    int i;
+    SEXP so;
+    double *sor;
+    
+    PROTECT(so = allocVector(REALSXP, n));
+    sor = REAL(so);
+    
+    GetRNGstate();
+    for (i=0; i<n; i++) {
+	sor[i] = sqrt(rchisq(2))*h;
+    }
+    PutRNGstate();
+    
+    UNPROTECT(1);
+    return(so);
+}
+
+SEXP tr_CRW(SEXP xyt, SEXP par1, SEXP par2, SEXP parcon,
+	    SEXP traitement, SEXP constraint)
+{
+    SEXP nn, env, rhor, hr, angl, dista, x0, xn, yn, xyso, t, resucont, resu;
+    SEXP namecol, namerow, classdf, classPOSIX;
+    double *angles, *distances, ang1, *xnr, *ynr, *tr;
+    int n, i, ok;
+
+    PROTECT(env = VECTOR_ELT(par1,0));
+    if(!isEnvironment(env)) error("'env' should be an environment");
+    PROTECT(nn = coerceVector(VECTOR_ELT(par1, 1), INTSXP));
+    PROTECT(rhor = coerceVector(VECTOR_ELT(par1, 2), REALSXP));
+    PROTECT(hr = coerceVector(VECTOR_ELT(par1, 3), REALSXP));
+    PROTECT(x0 = coerceVector(VECTOR_ELT(par1, 4), REALSXP));
+    n = INTEGER(nn)[0];
+
+    PROTECT(t = allocVector(REALSXP, n));
+    PROTECT(xn = allocVector(REALSXP, n));
+    PROTECT(yn = allocVector(REALSXP, n));
+    xnr = REAL(xn);
+    ynr = REAL(yn);
+    tr = REAL(t);
+    ok = 0;
+    
+    for (i = 0; i < n; i++) {
+	tr[i] = (double) i+1;
+    }
+
+    /* prepares the attributes of the output data.frame */
+    /* row.names */
+    PROTECT(namerow = allocVector(INTSXP, n)); 
+    for (i = 0; i < n; i++) {
+	INTEGER(namerow)[i] = (int) i+1;
+    }	    
+    /* names */
+    PROTECT(namecol = allocVector(STRSXP, 3)); 
+    SET_STRING_ELT(namecol, 0, mkChar("x"));
+    SET_STRING_ELT(namecol, 1, mkChar("y"));
+    SET_STRING_ELT(namecol, 2, mkChar("date"));
+    /* class data.frame */
+    PROTECT(classdf = allocVector(STRSXP, 1));
+    SET_STRING_ELT(classdf, 0, mkChar("data.frame"));
+    /* class POSIXct for the date */
+    PROTECT(classPOSIX = allocVector(STRSXP, 2));
+    SET_STRING_ELT(classPOSIX, 0, mkChar("POSIXct"));
+    SET_STRING_ELT(classPOSIX, 1, mkChar("POSIXt"));
+    classgets(t, classPOSIX);
+
+    while (ok != 1) {
+
+	/* random sampling of n-2 relative angles and n-1 distances */
+	PROTECT(angl = rwrpnorm(n-2, 0.0, REAL(rhor)[0]));
+	PROTECT(dista = rchi(n-1, REAL(hr)[0]));
+	angles = REAL(angl);
+	distances = REAL(dista);
+	
+    
+	/* first location */
+	xnr[0] = REAL(x0)[0];
+	ynr[0] = REAL(x0)[1];
+
+	/* sampling of the first angle */
+	GetRNGstate();
+	ang1 = unif_rand() * M_PI * 2.0;
+	PutRNGstate();
+	
+	/* second relocation */
+	xnr[1] = xnr[0] + cos(ang1)*distances[0];
+	ynr[1] = ynr[0] + sin(ang1)*distances[0];
+	
+	/* following relocations */
+	for (i = 2; i < n; i++) {
+	    ang1 = atan2(ynr[i-1]-ynr[i-2], xnr[i-1]-xnr[i-2]);
+	    xnr[i] = xnr[i-1] + distances[i-1]*cos(ang1+angles[i-2]);
+	    ynr[i] = ynr[i-1] + distances[i-1]*sin(ang1+angles[i-2]);
+	}
+	
+	/* stores the results */
+	PROTECT(xyso = allocVector(VECSXP, 3));
+	SET_VECTOR_ELT(xyso, 0, xn);
+	SET_VECTOR_ELT(xyso, 1, yn);
+	SET_VECTOR_ELT(xyso, 2, t);
+
+	/* define class and attributes */
+	classgets(xyso, classdf);
+	setAttrib(xyso, R_NamesSymbol, namecol);
+	setAttrib(xyso, R_RowNamesSymbol, namerow);
+
+	/* checks whether the constraints are satisfied */
+	defineVar(install("x"), xyso, env);
+	defineVar(install("par"), parcon, env);
+
+	PROTECT(resucont = coerceVector(eval(constraint, env), INTSXP));
+	
+
+	ok = INTEGER(resucont)[0];
+	if (ok!=1) {
+	    UNPROTECT(4);
+	}
+	ok = 1;
+    }
+    
+    /* evaluate the treatment */
+    defineVar(install("x"), xyso, env);
+    defineVar(install("par"), par2, env);
+    PROTECT(resu = eval(traitement, env));
+    
+    /* Return the result */
+    UNPROTECT(17);
+    return(resu);
+}
+
+
+
+
+
+void compteur(int i)
+{
+    if (i < 10)
+	Rprintf("\b");
+    if ((i > 9)&&(i<100))
+	Rprintf("\b\b");
+    if ((i > 99)&&(i<1000))
+	Rprintf("\b\b\b");
+    if ((i > 999)&&(i<10000))
+	Rprintf("\b\b\b\b");
+    if ((i > 9999)&&(i<100000))
+	Rprintf("\b\b\b\b\b");
+    if ((i > 99999)&&(i<1000000))
+	Rprintf("\b\b\b\b\b\b");
+    if ((i > 999999)&&(i<10000000))
+	Rprintf("\b\b\b\b\b\b\b");
+    if ((i > 9999999)&&(i<100000000))
+	Rprintf("\b\b\b\b\b\b\b\b");
+    Rprintf("%i", i+1);
+}
+
+
+
+
+SEXP simulmod(SEXP xyt, SEXP nrepr, SEXP type, SEXP par, SEXP countr)
+{
+    int typi, nrep, i, count;
+    SEXP res, par1, par2, parcon, traitement, constraint;
+    SEXP (*fct)(SEXP, SEXP, SEXP, SEXP,
+		SEXP, SEXP) = NULL;
+    
+    typi = INTEGER(type)[0];
+    nrep = INTEGER(nrepr)[0];
+    count = INTEGER(countr)[0];
+    PROTECT(res = allocVector(VECSXP, nrep));
+    PROTECT(par1 = VECTOR_ELT(par,0));
+
+    PROTECT(par2 = VECTOR_ELT(par,1));
+    PROTECT(parcon = VECTOR_ELT(par,2));
+    PROTECT(traitement = VECTOR_ELT(par,3));
+    PROTECT(constraint = VECTOR_ELT(par,4));
+    
+    switch (typi) {
+    case 0:
+	fct = tr_randomShiftRotation;
+	break;
+    case 1:
+	fct = tr_randomCRW;
+	break;
+    case 2:
+	fct = tr_CRW;
+	break;
+    case 3:
+	fct = tr_randomRotationCs;
+	break;
+    default:
+	error("type of null model not specified");
+    }
+    
+    if (count) {
+	Rprintf("Iteration:             ");
+    }
+    for (i=0; i<nrep; i++) {
+	if (count)
+	    compteur(i);
+	SET_VECTOR_ELT(res, i, fct(xyt, par1, par2, parcon, 
+				   traitement, constraint));
+    }
+    if (count) 
+	Rprintf("\n");
+    
+    UNPROTECT(6);
+    return(res);
+}
+
+
+
+SEXP simulmodmv(SEXP lixyt, SEXP nrepr, SEXP litype, SEXP lipar, SEXP countr, 
+		SEXP env2, SEXP convlt, SEXP na, SEXP nlo, SEXP traitement,
+		SEXP treat_par, SEXP constraint, SEXP cons_par)
+{
+    int nli, i, count, nrep, r, ok;
+    SEXP xyt, type, par, nreppr, reso, resook, res, countint, liso;
+    SEXP resucont, resu;
+
+    nli = length(lixyt);
+    PROTECT(nreppr = allocVector(INTSXP, 1));
+    PROTECT(countint = allocVector(INTSXP, 1));
+    INTEGER(nreppr)[0] = 1;
+    INTEGER(countint)[0] = 0;
+    count = INTEGER(countr)[0];
+    nrep = INTEGER(nrepr)[0];
+    PROTECT(liso = allocVector(VECSXP, nrep));
+    
+
+    if(!isEnvironment(env2)) error("'env2' should be an environment");
+    
+    if (count) {
+	Rprintf("Iteration:             ");
+    }
+    
+    for (r = 0; r < nrep; r++) {
+	
+	ok = 0;
+	
+	while (ok!=1) {
+	    
+	    if (count)
+		compteur(r);
+	    
+	    PROTECT(reso = allocVector(VECSXP, nli));
+	    
+	    for (i=0; i<nli; i++) {
+		PROTECT(par = VECTOR_ELT(lipar,i));
+		PROTECT(type = VECTOR_ELT(litype,i));
+		PROTECT(xyt = VECTOR_ELT(lixyt,i));
+		PROTECT(res = simulmod(xyt, nreppr, type, par, countint));
+		SET_VECTOR_ELT(reso, i, VECTOR_ELT(res, 0));
+		UNPROTECT(4);
+	    }
+	    defineVar(install("lixyt"), reso, env2);
+	    defineVar(install("na"), na, env2);
+	    defineVar(install("nlo"), nlo, env2);
+	    PROTECT(resook = eval(convlt, env2));
+	    
+	    
+	    /* checks whether the constraints are satisfied */
+	    defineVar(install("x"), resook, env2);
+	    defineVar(install("par"), cons_par, env2);
+	    PROTECT(resucont = coerceVector(eval(constraint, env2), INTSXP));
+	    
+	    ok = INTEGER(resucont)[0];
+	    if (ok!=1) {
+		UNPROTECT(3);
+	    }
+	    ok = 1;
+	}
+	
+	/* evaluate the treatment */
+	defineVar(install("x"), resook, env2);
+	defineVar(install("par"), treat_par, env2);
+	PROTECT(resu = eval(traitement, env2));
+
+	SET_VECTOR_ELT(liso, r, resu);
+	UNPROTECT(4);
+    }
+
+
+    if (count) 
+	Rprintf("\n");
+
+    UNPROTECT(3);
+    return(liso);
+}
+
+

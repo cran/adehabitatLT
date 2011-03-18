@@ -18,7 +18,7 @@ the {\tt adehabitatLT} Package }
   Office national de la chasse et de la faune
   sauvage\\
   Saint Benoist -- 78610 Auffargis -- France.}
-\date{Mar 2011}
+\date{April 2011}
 
 \begin{document}
 
@@ -428,7 +428,7 @@ fit. For such work, it is more convenient to see the trajectory as a set
 of points located in both space and time. And for such operations, it
 is sometimes more convenient to work with data frames. Two functions
 are provided to quickly convert a ltraj to and from data.frames: the
-functions \texttt{ld} and \texttt{dl}.
+functions \texttt{ld} and \texttt{dl}.\\
 
 The function \texttt{ld} allows to quickly convert an object of class
 \texttt{ltraj} to the class \texttt{data.frame}. Consider for example
@@ -627,10 +627,12 @@ missing values!
 
 \subsection{Rounding the timing of the trajectories to define a
   regular trajectory}
+\label{sec:round}
 
 In some cases, despite the fact that the relocations were expected to
 be collected to return a regular trajectory, a minor
-delay is sometimes observed in this timing. For
+delay is sometimes observed in this timing (e.g. the GPS collar needs
+some time to relocate). For
 example, consider the monitoring of four ibex in the Belledonne
 Mountains (French Alps):
 
@@ -701,8 +703,8 @@ ib3
 \noindent The trajectory is now regular.\\
 
 \noindent \textbf{Important note}: The functions \texttt{setNA} and
-\texttt{sett0} are to be used to set a theoretically regular
-trajectory into a practically regular trajectory. \textbf{It is NOT
+\texttt{sett0} are to be used to define a regular
+trajectory from a nearly regular trajectory. \textbf{It is NOT
   intended to transform an irregular trajectory into a regular one}
 (many users of \texttt{adehabitat} asked this question).
 
@@ -830,7 +832,7 @@ The function \texttt{removeinfo} can be used to set the attribute
 
 Note that it is required that:\\
 \begin{itemize}
-\item all the burst are characterized by the same variables in the
+\item all the bursts are characterized by the same variables in the
   attribute \texttt{infolocs}. For example, it is not possible to
   store only the variable \texttt{Dop} for one burst and only the
   variable \texttt{Status} for another burst into the same object;\\
@@ -1000,7 +1002,7 @@ bearI
 Nothing has changed, except that the time is replaced by an integer
 vector ordering the relocations in the trajectory.
 
-\subsubsection{Rediscretizing the trajectory}
+\subsubsection{Rediscretizing the trajectory in space}
 
 Several authors have advised to rediscretize type I trajectories so
 that they are built by steps with a constant length (e.g. Turchin
@@ -1090,6 +1092,50 @@ head(cosrelangle)
 This vector can now be analyzed using classical time series analysis
 methods. We do not pursue this analysis further, as this is beyond the
 scope of this vignette.
+
+\subsubsection{Rediscretizing the trajectory in time}
+\label{sec:redist}
+
+A common way to deal with missing values consist in linear
+interpolation. That is given relocations $r_1 = (x_1, y_1, t_1)$ and $r_3 =
+(x_3, y_3, t_2)$, it is possible to estimate the relocation $r_2$
+collected at $t_2$ with:
+
+\begin{eqnarray}
+x_2 & = & \frac{(t_2 - t_1)}{(t_3 - t_1)} (x_3 - x_1) \nonumber \\
+y_2 & = & \frac{(t_2 - t_1)}{(t_3 - t_1)} (y_3 - y_1) \nonumber
+\end{eqnarray}
+
+\textbf{Such an interpolation may be of limited value when many
+relocations are missing} (because it supposes implicitly that the
+animal is moving along a straight line). However, it can be useful to
+``fill in'' a small number of relocations. Such an interpolation can be
+carried out with the function \texttt{redisltraj}, setting the
+argument \texttt{type = "time"}. In this case, this function
+rediscretizes the trajectory so that the time lag between successive
+relocations is constant. For example, consider the data
+set \texttt{porpoise}:
+
+<<>>=
+data(porpoise)
+porpoise
+@
+
+We focus on the first three animals. David and Mitchell contain a
+small number of missing relocations, so that it can be a good idea to
+interpolate these relocations, to facilitate later calculations. We
+first remove the missing values with \texttt{na.omit} and then
+interpolate the trajectory so that the time lag between successive
+relocations is constant:
+
+<<>>=
+(porpoise2 <- redisltraj(na.omit(porpoise[1:3]), 86400, type="time"))
+@
+
+The object \texttt{porpoise2} now does not contain any missing
+values. Note that the rediscretization step should be expressed in
+seconds.
+
 
 \subsection{Dynamic exploration of a trajectory}
 
@@ -1297,10 +1343,12 @@ We can see that the relative angle observed at time $i$ is
 significantly correlated with the angle observed at time $i-1$.
 
 
-\subsection{Partitioning a trajectory into segments characterized by a
+\subsection{Segmenting a trajectory into segments characterized by a
   homogenous behaviour}
 
-We implemented a new approach to the partitioning of movement data,
+\subsubsection{The method of Gueguen (2001)}
+
+We implemented a new approach to the segmentation of movement data,
 relying on a Bayesian partitioning of a sequence. This approach was
 originally developed in molecular biology, to partition DNA
 sequences (Gueguen 2001). We describe this approach in this section.\\
@@ -1308,7 +1356,7 @@ sequences (Gueguen 2001). We describe this approach in this section.\\
 Biologically, a positive autocorrelation in any of the descriptive
 parameters may mean that the animal behaviour is changing with time
 (there are periods during which the animal is feeding, other during
-which the animal is resting, etc.). The idea is then to partition the
+which the animal is resting, etc.). The idea is then to segment the
 trajectory of the animal into homogenous segments.\\
 
 We will use the movements of a porpoise monitored using an Argos
@@ -1452,13 +1500,13 @@ log-likelihood is actually corrected using the method of Gueguen
 of the steps in the trajectory -- explaining the boxplots --, see the
 help page of \texttt{bestpartmod} for further details on this
 procedure). In this case, the method indicates that 4 segments are a
-reasonable choice for the partitioning. \textbf{This is a surprise for
+reasonable choice for the segmentation. \textbf{This is a surprise for
   us, as we rather expected 3 segments} (actually, the number of
 segments returned by the function depend on the models supposed
 \textit{a priori}).\\
 
 Finally, the function \texttt{partmod.ltraj} can be used to
-compute the partition. The mathematical rationale underlying these two
+compute the segmentation. The mathematical rationale underlying these two
 functions is the following: given an optimal $k$-partition of the
 trajectory, if the $i^{th}$ step of the trajectory belongs to the
 segment $k$ predicted by the model $d$, then either the relocation
@@ -1483,7 +1531,7 @@ trajectory of the porpoise into 4 segments:
 @
 
 We can see that the models at the beginning of the trajectory and at
-the end of the trajectory are the same. Have a look at this partition:
+the end of the trajectory are the same. Have a look at this segmentation:
 
 <<label=plotpartitiongus,echo=FALSE,fig=FALSE,eval=FALSE>>=
 plot(pm)
@@ -1505,14 +1553,14 @@ plot(pm)
 This is very interesting: we already noted that the movements at the
 very beginning and the end of the trajectory were much slower that the
 rest of the trajectory, and this is confirmed by this
-partition. However, this partition illustrates a change of speed at
+partition. However, this segmentation illustrates a change of speed at
 the middle of the ``migration''. The end of the migration is much
 faster than the beginning. This is clearer on the graph showing the
 changes in distance between successive relocations with the date. Let
-us plot this graph together with the partition:\\
+us plot this graph together with the segmentation:\\
 
 <<label=plotpartltr,echo=FALSE,fig=FALSE,eval=FALSE>>=
-## Shows the partition on the distances:
+## Shows the segmentation on the distances:
 plotltr(gus, "dist")
 tmp <- lapply(1:length(pm$ltraj), function(i) {
     coul <- c("red","green","blue")[as.numeric(factor(pm$stats$mod))[i]]
@@ -1537,10 +1585,10 @@ tmp <- lapply(1:length(pm$ltraj), function(i) {
 The end of the migration is nearly two times faster than the beginning
 of the migration.\\
 
-To conclude, have a look at the residuals of this partitionning:
+To conclude, have a look at the residuals of this segmentation:
 
 <<label=plotrespart,echo=FALSE,fig=FALSE,eval=FALSE>>=
-## Computes the residuals of the partition
+## Computes the residuals
 res <- unlist(lapply(1:length(pm$ltraj), function(i) {
     pm$ltraj[[i]]$dist - rep(tested.means[pm$stats$mod[i]],
                              nrow(pm$ltraj[[i]]))
@@ -1561,11 +1609,380 @@ plot(res, ty = "l")
 \end{center}
 
 And a Wald and Wolfowitz test suggests that the residuals of this
-partition are independent, confirming the validity of the approach:
+segmentation are independent, confirming the validity of the approach:
 
 <<>>=
 wawotest(res)
 @
+
+\subsubsection{The method of Lavielle (1999, 2005)}
+
+Barraquand and Benhamou (2008) proposed an approach to partition the
+trajectory, to identify the places where the animal stays a long
+time (based on the calculation of the residence time:
+see the help page of the function \texttt{residenceTime}).  Once the
+residence time has been calculated for each relocation, they propose
+to use the method of Lavielle (1999, 2005) to partition the
+trajectory. We describe this method in this section.\\
+
+The method of Lavielle \textit{per se} finds the best segmentation
+of a time series, given that it is built by $K$ segments. It
+searches the segmentation for which a contrast function (measuring the
+contrast between the actual series and the model underlying the
+segmented series) is minimized. Let $Y_i$ be the value of the focus
+variable (e.g. the speed, the residence time, etc.) at time $i$, and
+$n$ the number of observations. We suppose that the data have been
+generated by the following model:
+
+$$
+Y_i = \mu_i + \sigma_i \epsilon_i
+$$
+
+\noindent where $\mu_i$ and $\sigma_i$ are respectively the mean and the
+standard deviation of $Y_i$, and $\epsilon_i$ is a sequence of zero
+mean random variables with unit variance. \textit{Note that it is not
+  required that the $\epsilon_i$ are independent}. The model underlying
+the segmentation relies on the hypothesis that the
+parameters $\mu_i$ and $\sigma_i$ are constant within a segment, but
+also that they vary between successive segments. Several contrast
+functions can be used to measure the discrepancy between the observed
+series and a given segmentation model, depending on assumptions on
+this variation:\\
+
+\begin{itemize}
+\item we can suppose \textit{a priori} that only the mean $\mu_i$
+  changes between segments, and that $\sigma_i = \sigma$ is the same for
+  all segments. Then, for a given partition of the series built by $K$
+  segments with known limits, the following function can be used to
+  measure the discrepancy between the observed series and the model
+  supposing a mean constant within segments and changing from one
+  segment to the next:
+  $$
+  J_K(Y) = \sum_k G^1_k(Y_{i, i \in k})
+  $$
+  where $Y_{i, i \in k}$ is the set of observations in the segment
+  $k$, and
+  $$
+  G^1_k(Y_{i, i \in k}) = \sum_{i=t^k_1}^{t^k_{n(k)}} (Y_i - \bar Y_k)^2
+  $$
+  with $t^k_1$ and $t^k_{n(k)}$ the indices of the first and last
+  observations of segment $k$ respectively, and $\bar Y_k$ the sample
+  mean of the observations in the segment $k$;\\
+
+\item we can suppose \textit{a priori} that only the standard
+  deviation $\sigma_i$ changes between segments, and that $\mu_i = \mu$
+  is the same for all segments. Then, for a given partition of the
+  series built by $K$ segments with known limits, the following
+  function can be used to measure the discrepancy between the observed
+  series and the model supposing a variance constant within segments
+  and changing from one segment to the next:
+  $$
+  J_K(Y) = \sum_k G^2_k(Y_{i, i \in k})
+  $$
+  where
+  $$
+  G^2_k(Y_{i, i \in k}) = \frac{1}{n(k)} \log \left ( \frac{1}{n(k)}
+    \sum_{i=t^k_1}^{t^k_{n(k)}} (Y_i - \bar Y)^2 \right )
+  $$
+  with $n(k)$ the number of observations in the segment $k$ and
+  $\bar Y$ the mean of the whole series;\\
+
+\item finally, we can suppose \textit{a priori} that both the standard
+  deviation $\sigma_i$ and the mean $\mu_i$ change between
+  segments. Then, for a given partition of the
+  series built by $K$ segments with known limits, the following
+  function can be used to measure the discrepancy between the observed
+  series and the model supposing a mean and variance constant within
+  segments but changing from one segment to the next:
+  $$
+  J_k(Y) = \sum_k G^3_k(Y_{i, i \in k})
+  $$
+  where
+  $$
+  G^3_k(Y_{i, i \in k}) = \frac{1}{n(k)} \log \left ( \frac{1}{n(k)}
+    \sum_{i=t^k_1}^{t^k_{n(k)}} (Y_i - \bar Y_k)^2 \right )
+  $$
+\end{itemize}
+
+The three contrast functions can be used to measure the contrast
+between a given series and the model underlying a given segmentation
+of this series. \textit{For a given number of segments} $K$, the
+method of Lavielle consists in the search of the best segmentation of
+the series, i.e. the segmentation for which the chosen contrast
+function is minimized.\\
+
+For example, consider a series of 10
+observations. First, we calculate an upper triangular $10\times
+10$ matrix containing the value of the contrast function for all possible
+segments built by the successive observations of the series. This
+matrix is called the contrast matrix:
+
+<<echo=FALSE, fig=TRUE>>=
+par(mar=c(0,0,0,0))
+plot(c(0,1), xlim=c(-0.3,1.3), ylim=c(-0.3,1.3), axes=FALSE)
+ii <- seq(0.05, 0.95, by=0.1)
+tmp <- lapply(ii, function(i) {
+    lapply(ii, function(j) {
+        if (j-(1-i)> -0.01) {
+            polygon(c(i-0.05, i+0.05, i+0.05, i-0.05),
+                    c(j-0.05, j-0.05, j+0.05, j+0.05), col="grey")
+        } else {
+            polygon(c(i-0.05, i+0.05, i+0.05, i-0.05),
+                    c(j-0.05, j-0.05, j+0.05, j+0.05))
+        }
+    })})
+polygon(c(0,1,1,0), c(0,0,1,1), lwd=2)
+text(rep(-0.05,10), ii, 10:1)
+text(ii, rep(1.05,10), 1:10)
+i <- 0.65
+j <- 0.85
+polygon(c(i-0.05, i+0.05, i+0.05, i-0.05),
+        c(j-0.05, j-0.05, j+0.05, j+0.05), col="red")
+segments(0.4, 1.18, i, j)
+points(i,j, pch=16)
+text(0.4, 1.25, "Contrast function measured on the segment\n beginning at observation 2 and ending at observation 7")
+@
+
+Given a number $K$ of segments, the Lavielle method consists in the
+search of the best path from the first to the last observation in this
+matrix. For example, consider the following path:
+
+
+<<echo=FALSE, fig=TRUE>>=
+par(mar=c(0,0,0,0))
+plot(c(0,1), xlim=c(-0.3,1.3), ylim=c(-0.3,1.3), axes=FALSE)
+ii <- seq(0.05, 0.95, by=0.1)
+tmp <- lapply(ii, function(i) {
+    lapply(ii, function(j) {
+        if (j-(1-i)> -0.01) {
+            polygon(c(i-0.05, i+0.05, i+0.05, i-0.05),
+                    c(j-0.05, j-0.05, j+0.05, j+0.05), col="grey")
+        } else {
+            polygon(c(i-0.05, i+0.05, i+0.05, i-0.05),
+                    c(j-0.05, j-0.05, j+0.05, j+0.05))
+        }
+    })})
+polygon(c(0,1,1,0), c(0,0,1,1), lwd=2)
+text(rep(-0.05,10), ii, 10:1)
+text(ii, rep(1.05,10), 1:10)
+lines(c(0.00, 0.45, 0.50, 0.75, 0.80, 0.95),
+      c(0.95, 0.95, 0.45, 0.45, 0.15, 0.15), col="red", lwd=3)
+points(c(0.45, 0.75, 0.95),
+       c(0.95, 0.45, 0.15), pch=16, cex=2)
+@
+
+This segmentation is built by 3 segments:\\
+
+\begin{itemize}
+\item the first segment begins at the first observation and ends at
+  the fifth observation. The value of the contrast function for this
+  segment is at the intersection between the first row and the fifth
+  column.
+\item the second segment begins at the sixth observation and ends at
+  the eighth observation. The value of the contrast function for this
+  segment is at the intersection between the sixth row and the eighth
+  column.
+\item the last segment begins at the ninth observation and ends at
+  the tenth observation. The value of the contrast function for this
+  segment is at the intersection between the ninth row and the tenth
+  column.\\
+\end{itemize}
+
+The value of the contrast function for the whole segmentation is the
+sum of the values located at the dots. For a given value of the number
+of segments (in this example $K=3$), a dynamic programming algorithm
+allows to identify the best segmentation, i.e. the path through the
+matrix for which the contrast function is minimized.\\
+
+\noindent \textit{Remark}: in practice, a minimum number of
+observations $L_{min}$ in the segments should be specified. For
+example, if $L_{min} = 3$, no segment will contain less than 3
+observations.\\
+
+Now, remains the question of the choice of the optimal number of
+segments $K_{opt}$. Several approaches have been proposed to guide the
+choice of $K_{opt}$. The approaches proposed by Lavielle (2005)
+rely on the examination of the decrease of the contrast function
+$J(K)$ with the number of segments $K$. Indeed, the more there are
+segments, and the smaller the contrast function will be (because a
+segmentation built by
+more segments will fit more closely to the actual series). However,
+there should be a clear "break" in the decrease of this function after
+the optimal value $K_{opt}$.  Therefore, the number of segments can be
+chosen graphically, based on the examination of the decrease of this
+contrast function J(K) with $K$.  Lavielle (2005) also suggested an
+alternative way to
+estimate automatically the optimal number of segments, also relying on
+the presence of a "break" in the decrease of the contrast function.
+He proposed to choose the last value of $K$ for which the second
+derivative $D(K)$ of a \textit{standardized} constrast function is
+greater than a threshold $S$ (see Lavielle, 2005 for details).  Based
+on numerical experiments, he proposed to choose the value $S =
+0.75$.\\
+
+Note that the standardization of the contrast function is based
+on the specification of a value of $K_{max}$, the maximum number of
+segments expected by the user (see Lavielle 2005 for details). Note
+that the value of $K_{max}$ chosen by the user may have a strong
+effect on the resulting value of $K_{opt}$, in particular for small
+time series (i.e. less than 500 observations). Barraquand (com. pers)
+noted from simulations that values of $K_{max}$ set to about 3 or 4
+times the expected value of $K_{opt}$ seem to give the best results. \\
+
+The Lavielle method is implemented in the function
+\texttt{lavielle}. For example, consider the following time series,
+built by 6 segments of 100 observations each, drawn from a normal
+distribution with a mean varying from one segment to the next (0, 2,
+0, -3, 0, 2):
+
+<<label=figseri1,echo=FALSE,fig=FALSE,eval=FALSE>>=
+set.seed(129)
+seri <- c(rnorm(100), rnorm(100, mean=2),
+          rnorm(100), rnorm(100, mean=-3),
+          rnorm(100), rnorm(100, mean=2))
+plot(seri, ty="l", xlab="time", ylab="Series")
+@
+
+<<results=tex,echo=TRUE,fig=FALSE,eval=FALSE>>=
+<<figseri1>>
+@
+
+\begin{center}
+<<results=tex,echo=FALSE>>=
+<<afig>>
+<<figseri1>>
+<<zfig>>
+@
+\end{center}
+
+
+We will use the Lavielle method to see whether we can identify the
+limits used to generate this series. We can use the function
+\texttt{lavielle} to calculate the contrast matrix:
+
+<<>>=
+(l <- lavielle(seri, Lmin=10, Kmax=20, type="mean"))
+@
+
+Note that we indicate that each segment should contain at least 10
+observations (\texttt{Lmin=10}) and that the whole series is built by at
+most 20 segments (\texttt{Kmax = 20}). The result of the function is a
+list of class \texttt{"lavielle"} containing various results, but the
+most interesting one here is the contrast matrix. We can have a look
+at the decrease of the contrast function when the number $K$ of
+segments increase, with the function \texttt{chooseseg}:
+
+<<fig=TRUE>>=
+chooseseg(l)
+@
+
+This function returns: (i) the value of the contrast function
+\texttt{Jk} for various values of $K$, (ii) the value of the second
+derivative of the contrast function \texttt{D} for various values of
+$K$, and (iii) a graph showing the decrease of \texttt{Jk} with $K$.
+The slope of the contrast function is strongly
+negative when $K<6$, but there is a sharp break at $K = 6$. Visually,
+the value of $K_{opt} = 6$ seems therefore reasonable. Moreover, the
+last value of $K$ for which $D>0.75$ is $K=6$, which
+confirms our first visual choice (the second derivative is actually
+very strong for this value of $K$). We can have a look at the best
+segmentation with 6 segments with the function \texttt{findpath}:
+
+<<label=figchoose1,echo=FALSE,fig=FALSE,eval=FALSE>>=
+fp <- findpath(l, 6)
+@
+
+<<results=tex,echo=TRUE,fig=FALSE,eval=FALSE>>=
+<<figchoose1>>
+@
+
+\begin{center}
+<<results=tex,echo=FALSE>>=
+<<afig>>
+<<figchoose1>>
+<<zfig>>
+@
+\end{center}
+
+The Lavielle method does a pretty good job in this ideal
+situation. Note that \texttt{fp} is a list containing the indices of
+the first and last observations of the series building the segment:
+
+<<>>=
+fp
+@
+
+\noindent The limits found by the method are very close to the actual
+limits here.\\
+
+The function \texttt{lavielle} is a generic function that has a method
+for objects of class \texttt{"ltraj"}. For example, consider again the
+porpoise described in the previous section. We will
+perform a segmentation of this trajectory based on the distances
+travelled by the animal from one relocation to the next.
+
+<<fig=TRUE>>=
+plotltr(gus, "dist")
+@
+
+We can use the function \texttt{lavielle} to partition this trajectory
+into segments with homogeneous speed. A priori, based on a visual
+examination, there is no reason to expect that this series is built by
+more than 20 segments. We will use the Lavielle method, with $K_{max}
+= 20$ and $L_{min} = 2$ (we suppose that there are at least 2
+observations in a segment):
+
+<<fig=TRUE>>=
+lav <- lavielle(gus, Lmin=2, Kmax=20)
+chooseseg(lav)
+@
+
+There is a clear break in the decrease of the contrast function after
+$K=4$. In addition, this is also the last value of $K$ for which
+$D>0.75$. Look at the segmentation of the series of distances:
+
+<<fig=TRUE>>=
+kk <- findpath(lav, 4)
+kk
+@
+
+Note that the red lines indicate the beginning of new segments. The
+function \texttt{findpath} here returns an object of class
+\texttt{"ltraj"} with one burst per segment:
+
+<<fig=TRUE>>=
+plot(kk)
+@
+
+Note that this segmentation is nearly identical to the one found with
+the method of Gueguen (2001).\\
+
+\noindent \textit{Important Remark}: The Lavielle method implies the
+calculation of a contrast matrix with dimensions equal to $n \times
+n$, where $n$ is the number of observations in the series. However,
+as $n$ increases, the size of the contrast matrix may exceed the
+memory limit of the computer. In this case, a possibility  consists in
+the calculation of the contrast function along a grid of size
+$l_d$. Therefore the contrast function will not be calculated for all
+possible segments in the series, but for all possible segments
+containing multiple of $l_d$ observations. For example, if $l_d = 3$,
+possible segments beginning by observation 1 are (1,2,3),
+(1, 2, ..., 6), (1, 2, ..., 9), (1, 2, ..., 12), etc. Therefore, $l_d$
+defines the resolution of the segmentation: the segment limits can
+only occur for observations located at indices multiple of $l_d$. This
+sub-sampling approach is possible with the function \texttt{lavielle},
+by setting the parameter \texttt{ld} to a value greater than
+1. \textit{Note that in this case, \texttt{Lmin} should necessarily be
+  a multiple of \texttt{ld}} (the function fails otherwise).\\
+
+\noindent \textit{Remark}: The Lavielle method was originally propose
+to partition a trajectory based on the residence time of the
+animal. The residence time method is implemented in
+the function \texttt{residenceTime}. The use of this function will add
+a new variable in the component \texttt{"infolocs"} of the object of
+class \texttt{"ltraj"} that can be used with the Lavielle method (see
+the help page of this function).
+
 
 
 \subsection{Rasterizing a trajectory}
@@ -1783,6 +2200,562 @@ plot(sim, addp=FALSE)
 \end{center}
 
 
+\section{Null models of animal movements}
+
+\subsection{What is a null model?}
+
+The package \texttt{adehabitatLT} provides several functions to
+perform a null model analysis of trajectories. Null models are
+frequently used in community ecology to test hypotheses about the
+processes that generated the data. Gotelli and Graves (1996) defined
+the null model as ``\textit{a pattern generating model that is based
+  on randomization of ecological data or random sampling from a known
+  or imagined distribution. The null model is designed with respect to
+  some ecological or evolutionary process of interest. Certain
+  elements of the data are held constant, and others are allowed to
+  vary stochastically to create new assemblage patterns. The
+  randomization is designed to produce a pattern that would be
+  expected in the absence of a particular ecological mechanism}''.\\
+
+Gotelli (2001) gave a more detailed description of the null model approach:
+``\textit{to build a null model, an index of community structure, such
+  as the amount of niche overlap (...), is first measured for the real
+  data. Next, a null community is generated according to an algorithm
+  or set of rules for randomization, and this same index is measured
+  for the null community. A large number of null communities are used
+  to generate a frequency histogram of index values expected if the
+  null hypothesis is true. The position of the observed index in the
+  tails of this null distribution is then used to assign a probability
+  value to the pattern, just as in a conventional statistical
+  analysis}.\\
+
+Although mostly used in community ecology, this approach was also
+advocated for trajectory data, e.g. in the analysis of habitat
+selection (Martin et al. 2008) and the study of the interactions
+between animals (Richard et al. in prep). This approach can
+indeed be very useful to test hypotheses related to animal movements.
+The package adehabitatLT propose several general null models that can
+be used to test biological hypotheses. \\
+
+\subsection{The problem}
+
+For example, consider the first animal in the object
+\texttt{puechcirc} loaded previously. We plot this trajectory on an
+elevation map:
+
+<<label=figoriboar,echo=FALSE,fig=FALSE,eval=FALSE,keep.source=TRUE>>=
+data(puechcirc)
+data(puechabonsp)
+boar1 <- puechcirc[1]
+xo <- coordinates(puechabonsp$map)
+## Note that xo is a matrix containing the coordinates of the
+## pixels of the elevation map (we will use it later to define
+## the limits of the study area).
+
+plot(boar1, spixdf=puechabonsp$map, xlim=range(xo[,1]), ylim=range(xo[,2]))
+@
+
+<<results=tex,echo=TRUE,fig=FALSE,eval=FALSE,keep.source=TRUE>>=
+<<figoriboar>>
+@
+
+\begin{center}
+<<results=tex,echo=FALSE>>=
+<<afig>>
+<<figoriboar>>
+<<zfig>>
+@
+\end{center}
+
+
+At first sight, it seems that the animal occupies a large range of
+values of elevation. We may want to test whether the variance of
+elevation values at animal relocations could have been observed under
+the hypothesis of random habitat use. The question is therefore: what
+do we mean by ``random habitat use''? We can precise our aim
+here. We may consider the animal as a random sample
+of all animals living on the study area. If we focus on the second
+scale of habitat selection as defined by Johnson (1980), i.e. on the
+selection of the home range in the study area, under the
+hypothesis of random habitat use, the observed trajectory could have
+been located anywhere on the study area.\\
+
+Therefore, if we want to know if the actual elevation variance could
+have been observed under the hypothesis of random habitat use, one
+possibility is to simulate this kind of random habitat use a large
+number of times, and to calculate the elevation variance for each
+simulated data set. If the observed value is far from the distribution
+of simulated values, this would allow to rule out the null model.\\
+
+One possibility to simulate this kind of ``random habitat use'' for
+this animal could be to randomly rotate and shift the observed
+trajectory over the study area. Rotating and shifting the trajectory
+as a whole allows to keep the trajectory structure unchanged
+(therefore taking into account the internal constraints of the animal,
+see Martin et al. 2008). The function \texttt{NMs.randomShiftRotation}
+from the package \texttt{adehabitatLT} allows to define this type of
+null model (but other null models are also available in
+\texttt{adehabitatLT}, see section \ref{sec:imprem}), and the function
+\texttt{testNM} allows to simulate it.\\
+
+\subsection{The principle of the approach}
+
+The basic principle of the null model approach implemented in the
+package is the following:\\
+
+\begin{itemize}
+\item first write a treatment function that will be used to
+  calculate a criterion characterizing the process under study from
+  the simulated data (see below for how to write such a function);\\
+
+\item then choose a null model and define the constraints to be
+  satisfied by simulated datasets. Define this null model with one
+  function \texttt{NMs.*} (see section
+  \ref{sec:imprem} or the help page of \texttt{testNM} for a list of
+  the available null models), and simulate $N$ random data sets
+  generated by this model using the function \texttt{testNM};\\
+
+\item finally compare the observed criterion with the distribution of
+  simulated values to determine whether the observed data set could
+  have been generated by the null model.\\
+\end{itemize}
+
+The function \texttt{testNM}, used to simulate the model, generates at
+each step of the simulation process a data frame \texttt{x} with three
+columns: the coordinates x, y, and the date (whatever the chosen type
+of null model). The treatment function defines how to calculate the
+criterion used in the test from this data frame. The treatment
+function can be any function defined by the user, but \textbf{must}
+take arguments \texttt{x} and \texttt{par}, where:\\
+
+\begin{itemize}
+\item \texttt{x} is the data frame generated by the null model;\\
+
+\item \texttt{par} can be any R object (e.g. a list) containing the
+  parameters required by the treatment function. Note that this
+  argument is needed even if no parameters are required by the
+  treatment function. In this case, the argument \texttt{par} will not
+  be used by the function, but must be present in the
+  function definition).\\
+\end{itemize}
+
+We will define a treatment function that calculate the elevation
+variance from a simulated trajectory later. For the moment, we will
+define a treatment function that just plot the simulated trajectories
+on an elevation map. Consider the following function:
+
+<<>>=
+plotfun <- function(x, par)
+{
+    image(par)
+    points(x[,1:2], pch=16)
+    lines(x[,1:2])
+    return(x)
+}
+@
+
+This function will be used to plot the simulations of the null
+model. In this case, the argument \texttt{par} correspond to a map of
+the study area. Note that this function also returns the data frame
+\texttt{x}. Now, define the following null model:
+
+<<fig=FALSE>>=
+nmo <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
+                               rx = range(xo[,1]), ry = range(xo[,2]),
+                               treatment.func = plotfun,
+                               treatment.par = puechabonsp$map[,1], nrep=9)
+nmo
+@
+
+We have removed the missing values from the object of class
+\texttt{ltraj} (this function does not accept missing values in the
+trajectory). The arguments \texttt{rshift} and \texttt{rrot} indicate
+that we want to randomly rotate the trajectory and shift it over the
+study area. The study area is necessarily a rectangle defined by its x
+and y limits \texttt{rx} and \texttt{ry}. We indicate that the
+treatment function is the function \texttt{plotfun} that we just
+wrote, and that the argument \texttt{par} that will be passed to the
+treatment function (i.e. \texttt{treatment.par}) is the elevation
+map. We only define 9 repetitions of the null model. Now, we simulate
+the model using the function \texttt{testNM}:
+
+<<label=figtestNM,echo=FALSE,fig=FALSE,eval=FALSE>>=
+set.seed(90909)
+par(mfrow=c(3,3), mar=c(0,0,0,0))
+resu <- testNM(nmo, count = FALSE)
+@
+
+<<results=tex,echo=TRUE,fig=FALSE,eval=FALSE>>=
+<<figtestNM>>
+@
+
+\begin{center}
+<<results=tex,echo=FALSE>>=
+<<afig>>
+<<figtestNM>>
+<<zfig>>
+@
+\end{center}
+
+
+This figure illustrates the datasets generated by the null
+model. We can see that each data set corresponds to the original
+trajectory after a random rotation and shift over the study
+area. First, we can see a problem: some of the generated trajectories
+are located outside the study area (because the study area is
+necessarily defined as a rectangle in this type of null model). It
+here necessary to define a \textit{constraint function} when defining
+the null model. Like the treatment function, the constraint function
+takes two arguments \texttt{x} and \texttt{par}, and \textit{must
+  return a logical value} indicating whether the constraint(s) are
+satisfied or not. In our example, we would like that all the
+relocations building the trajectory fall within the study area. In
+other words, if we overlap spatially the relocations and the elevation
+map, there should be no missing value. Define the following constraint
+function:
+
+<<keep.source=TRUE>>=
+confun <- function(x, par)
+{
+    ## Define a SpatialPointsDataFrame from the trajectory
+    coordinates(x) <- x[,1:2]
+    ## overlap the relocations x to the elevation map par
+    jo <- join(x, par)
+    ## checks that there are no missing value
+    res <- all(!is.na(jo))
+    ## return this check
+    return(res)
+}
+@
+
+Now, define again the null model, but also define the constraint
+function:
+
+<<>>=
+nmo2 <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
+                                rx = range(xo[,1]), ry = range(xo[,2]),
+                                treatment.func = plotfun,
+                                treatment.par = puechabonsp$map[,1],
+                                constraint.func = confun,
+                                constraint.par = puechabonsp$map[,1],
+                                nrep=9)
+@
+
+Now, if we simulate the null model, only those data sets satisfying the
+constraint will be returned by the function:
+
+<<label=figtestnm2,echo=FALSE,fig=FALSE,eval=FALSE>>=
+set.seed(90909)
+par(mfrow=c(3,3), mar=c(0,0,0,0))
+resu <- testNM(nmo2, count = FALSE)
+@
+
+<<results=tex,echo=TRUE,fig=FALSE,eval=FALSE>>=
+<<figtestnm2>>
+@
+
+\begin{center}
+<<results=tex,echo=FALSE>>=
+<<afig>>
+<<figtestnm2>>
+<<zfig>>
+@
+\end{center}
+
+
+\subsection{Back to the problem}
+
+Now consider again our problem: is the variance of the elevation
+values at the relocations greater than expected under the hypothesis
+of random use of space? We can write a treatment function that
+calculates the variance of elevation values from a data frame
+\texttt{x} containing the relocations and a
+SpatialPixelsDataFrame \texttt{par} containing the elevation map:
+
+<<>>=
+varel <- function(x, par)
+{
+    coordinates(x) <- x[,1:2]
+    jo <- join(x, par)
+    return(var(jo))
+}
+@
+
+We can define again a null model to calculate a distribution of values
+of variance expected under the null model. We use the function
+\texttt{varel} as treatment function in the null model. To save some
+time, we calculate only 99 values under this null model, but the user
+is encouraged to try the function with a larger value:
+
+<<>>=
+nmo3 <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
+                                rx = range(xo[,1]), ry = range(xo[,2]),
+                                treatment.func = varel,
+                                treatment.par = puechabonsp$map[,1],
+                                constraint.func = confun,
+                                constraint.par = puechabonsp$map[,1],
+                                nrep=99)
+@
+
+Note that we define the same constraint function as before (all
+relocations should be located inside the study area. We now simulate
+the null model:
+
+<<eval=FALSE>>=
+sim <- testNM(nmo3, count=FALSE)
+@
+
+<<echo=FALSE>>=
+load("sim.Rdata")
+@
+
+Now, calculate the observed value of variance:
+
+<<>>=
+(obs <- varel(na.omit(boar1)[[1]], puechabonsp$map[,1]))
+@
+
+And compare this observation with the distribution obtained under the
+null model, using the function \texttt{as.randtest} from the package
+ade4:
+
+<<fig=TRUE>>=
+(ran <- as.randtest(unlist(sim[[1]]), obs))
+plot(ran)
+@
+
+The P-value is rather low, which seems to indicate that the range of
+elevations used by the boar is important in comparison to what would
+be expected under the hypothesis of random habitat use.
+
+\subsection{Null model with several animals}
+
+Now, consider again the data set \texttt{puechcirc}. This data set
+contains three trajectories of two wild boars:
+
+<<fig=TRUE>>=
+puechcirc
+plot(puechcirc)
+@
+
+Note that the two trajectories of CH93 are roughly located at the same
+place on the study area. We decide to bind these two trajectories into
+one:
+
+<<>>=
+(boar <- bindltraj(puechcirc))
+@
+
+Now, we can reproduce the null model analysis separately for each
+animal. When the object of class \texttt{ltraj} passed as argument
+contains several trajectories, the simulations are performed
+separately for each one. Therefore, to define the null model for all
+animals in \texttt{boar}, we can use the same command line as before,
+just replacing \texttt{boar1} by \texttt{boar}:
+
+<<>>=
+nmo4 <- NMs.randomShiftRotation(na.omit(boar), rshift = TRUE, rrot = TRUE,
+                                rx = range(xo[,1]), ry = range(xo[,2]),
+                                treatment.func = varel,
+                                treatment.par = puechabonsp$map[,1],
+                                constraint.func = confun,
+                                constraint.par = puechabonsp$map[,1],
+                                nrep=99)
+@
+
+We now simulate this null model with the function \texttt{testNM}:
+
+<<eval=FALSE>>=
+sim2 <- testNM(nmo4, count=FALSE)
+@
+
+<<echo=FALSE>>=
+load("sim2.Rdata")
+@
+
+\texttt{sim2} is a list with two components (one per trajectory), each
+component being itself a list with \texttt{nrep=99} elements (the
+elevation variance calculated for each of the 99 datasets generated by
+the null model). We can calculate the observed elevation variance for each
+observed trajectory:
+
+<<>>=
+(obs <- lapply(na.omit(boar), function(x) {
+  varel(x, puechabonsp$map[,1])
+}))
+@
+
+And calculate a P-value for each animal separately:
+
+<<>>=
+lapply(1:2, function(i) {
+  as.randtest(unlist(sim2[[i]]), obs[[i]])
+})
+@
+
+In this case, none of the two tests are significant at the
+conventional $\alpha = $ 5\% level.
+
+
+\subsection{Single null models and multiple null models}
+
+In the previous section, we showed how to build a null model and
+simulate this null model for several trajectories separately. Now, we
+may find more convenient to design a global criterion (measured on all
+animals) to test whether the elevation variance is greater than
+expected under the null model. This is the principle of ``multiple
+null models''. This approach is the following:\\
+
+\begin{itemize}
+\item First define a global criterion that will be used to test the
+  hypothesis under study;
+\item Define ``single null models'' using any of the functions
+  \texttt{NMs.*} (see below), i.e. the randomization approach
+  and the constraints that will be used to simulate a trajectory for
+  each animal;
+\item Define a ``multiple null model'' from the ``single null
+  models'', by defining the constraints that should be satisfied by
+  each set of simulated trajectories and the treatment function that
+  will be applied to each set;
+\item Simulate the null model \texttt{nrep} times to obtain
+  \texttt{nrep} values of the criterion under the defined null model,
+  using the function \texttt{testNM}
+\item Calculate the observed value of the criterion and calculate a
+  P-value by comparing the observed value to the distribution of
+  values expected under the null model.
+\end{itemize}
+
+We illustrate this approach on our example. We first define, as a
+global criterion, the mean elevation variance, i.e. the elevation
+variance averaged over all animals. We need to define a treatment
+function allowing to calculate this global criterion. The treatment
+function should take two arguments named \texttt{x} and
+\texttt{par}. The argument \texttt{x} should be an object of class
+\texttt{"ltraj"} (i.e. the set of trajectories simulated by the null
+model at each step of the randomization process) and the argument
+\texttt{par} can be any R object (e.g. a list) containing the
+parameters needed by the treatment function. In our example, the
+treatment function will be the following:
+
+<<>>=
+meanvarel <- function(x, par)
+{
+    livar <- lapply(x, function(y) {
+        coordinates(y) <- y[,1:2]
+        jo <- join(y, par)
+        return(var(jo))
+    })
+    mean(unlist(livar))
+}
+@
+
+We have defined the single null models in the previous section. We now
+define a multiple null model from this object using the function
+\texttt{NMs2NMm}:
+
+<<>>=
+nmo5 <- NMs2NMm(nmo4, treatment.func = meanvarel,
+                treatment.par = puechabonsp$map, nrep = 99)
+@
+
+
+Note that both the treatment function and the number of repetitions
+that we have defined in the function \texttt{NMs.randomShiftRotation}
+will be ignored when the multiple null model will be simulated. We can
+now simulate the model:
+
+<<eval=FALSE>>=
+sim3 <- testNM(nmo5, count=FALSE)
+@
+
+<<echo=FALSE>>=
+load("sim3.Rdata")
+@
+
+At each step of the randomization process, two trajectories are
+simulated (under the null model and satisfying the constraints) and
+the treatment function is applied to the simulated trajectories. The
+result is therefore a list with \texttt{nrep} component, each
+component containing the result of the treatment function. We now
+calculate the observed criterion:
+
+<<>>=
+(obs <- meanvarel(na.omit(boar), puechabonsp$map))
+@
+
+And we define a randomization test from these results, using the
+function \texttt{as.randtest} from the package ade4:
+
+<<fig=TRUE>>=
+(ran <- as.randtest(unlist(sim3), obs))
+plot(ran)
+@
+
+As a conclusion, we are unable to highlight any difference between the
+observed mean elevation variance and the distribution of values
+expected under the null model.
+
+\subsection{Several important remarks}
+\label{sec:imprem}
+
+We give in this section several important remarks:\\
+
+\begin{itemize}
+
+\item We have illustrated null models in this vignette with the help
+  of the function \texttt{NMs.randomShiftRotation}. However, several
+  other null models are available in the package. The function
+  \texttt{NMs.randomCRW} can be used to simulate a correlated random
+  walk, with the distribution of turning angles and distances between
+  successive relocations calculated from the data. The function
+  \texttt{NMs.CRW} implements a purely parametric correlated random
+  walk (see \texttt{?simm.crw}), where parameters are specified by the
+  used. Finally, the function \texttt{NMs.randomCs} is similar to the
+  function \texttt{NMs.randomShiftRotation}, but give a finer control
+  on the distances between trajectory barycenter and a set of capture
+  sites. The help page of \texttt{testNM} given further details and
+  examples of use.\\
+
+\item We have illustrated the use of null models to test for habitat
+  selection, but it can be used for a wide variety of hypotheses
+  (interactions between animals, etc.).\\
+
+\item The main argument of the functions \texttt{NMs.*} is an object
+  of class \texttt{ltraj}. However, in some cases, the null models can
+  be useful to test hypotheses on other types of data. For example,
+  imagine that we want to measure the overlap between the home-range
+  of several animals monitored using radio-tracking, and that, for
+  each animal, only the X and Y coordinates are available. It is
+  therefore impossible, in theory, to define an object of class
+  \texttt{ltraj} (since a date is needed for such objects), though it
+  might be biologically sensible to compare the observed overlap with
+  the overlap expected under a random distribution of the animals. It
+  is still possible to use the functions
+  \texttt{NMs.randomShiftRotation} and \texttt{NMs.randomCs}
+  for this kind of analysis. In this case, the user can create a
+  ``fake'' date variable (e.g. if there are \texttt{nr} rows in the
+  data frame containing the X and Y coordinates, a ``fake'' date
+  variable can be created by \texttt{fa <- 1:nr}, and can be used to
+  create an object of class \texttt{ltraj} that can be used in null
+  model analysis.\\
+
+\item Note that for multiple null models, two kinds of constraints are
+  possible: it is possible to define constraints for the individual
+  trajectories in the function \texttt{NMs.*} (e.g. the simulated
+  trajectory should fall within the study area), and for the whole set
+  of trajectories in the function \texttt{NMs2NMm} (e.g. at least 80\%
+  of the trajectories should be located in a given habitat type, see
+  Richard et al., in prep for an example). The two types of constraint
+  function are taken into account when simulating the null model.\\
+
+\item Note that missing relocations are not allowed in null model
+  analysis. Therefore, if there are missing relocations in the
+  trajectory, the use of \texttt{na.omit.ltraj} is required prior to
+  the analysis.
+\end{itemize}
+
+
+
 \section{Conclusion and perspectives}
 
 Several other methods can be used to analyze a trajectory. Thus, the
@@ -1816,6 +2789,9 @@ underlying the analysis of animal space use.
 \item Bartumeus, F., da Luz, M.G.E., Viswanathan, G.M. and Catalan,
   J. 2005. Animal search strategies: a quantitative random-walk
   analysis. Ecology, 86: 3078--3087.
+\item Barraquand, F. and Benhamou, S. 2008. Animal movements in
+  heterogeneous landscapes: identifying profitable places and
+  homogeneous movement bouts. Ecology, 89, 3336--3348.
 \item Benhamou, S. and Cornelis, D. 2010. Incorporating movement
   behavior and barriers to improve kernel home range space use
   estimates. Journal of Wildlife Management, 74, 1353--1360.
@@ -1850,8 +2826,12 @@ underlying the analysis of animal space use.
 \item Dunn, J. and Gipson, P. 1977. Analysis of radio telemetry data
   in studies of home range. Biometrics, 33, 85-101
 \item Fauchald, P. and Tveraa, T. 2003. Using first-passage time in
-  the analysis of area-restricted search and habitat selection
+  the analysis of area-restricted search and habitat selection/
   Ecology, 84, 282-288.
+\item Gotelli, N. 2001. Research frontiers in null model analysis.
+  Global ecology and biogeography, 10, 337--343.
+\item Gotelli, N. and Graves, G. 1996. Null models in
+  Ecology. Smithsonian Institution Press.
 \item Graves, T. and Waller, J. 2006. Understanding the causes of
   missed global positioning system telemetry fixes. Journal of
   Wildlife Management, 70, 844--851.
@@ -1864,11 +2844,23 @@ underlying the analysis of animal space use.
   a correlated random walk. Oecologia, 56, 234--238.
 \item Keating, K. and Cherry, S. 2009. Modeling utilization
   distributions in space and time. Ecology, 90, 1971--1980.
+\item Lavielle, M. 2005. Using penalized contrasts for the
+  change-point problem. Signal Processing, 85, 1501--1510.
+\item Lavielle, M. 1999. Detection of multiple changes in a sequence
+  of dependent variables. Stochastic Processes and their
+  Applications. 83, 79--102.
 \item Marsh, L. and Jones, R. 1988. The form and consequences of
   random walk movement models. Journal of Theoretical Biology, 133,
   113--131.
+\item Martin, J., Calenge, C., Quenette, P.Y. and Allain{\'e},
+  D. 2008. Importance of movement constraints in habitat selection
+  studies. Ecological Modelling, 213, 257--262.
 \item Pebesma, E. and Bivand, R.S. 2005. Classes and Methods for
   Spatial data in R. R News, 5, 9--13.
+\item Richard, E., Calenge, C., Said, S., Hamann, J.L. and Gaillard,
+  J.M. (in prep.) A null model approach to study the spatial
+  interactions between roe deer (\textit{Capreolus capreolus}) and red
+  deer (\textit{Cervus elaphus}).
 \item Root, R. and Kareiva, P. 1984. The search for resources by
   cabbage butterflies (Pieris Rapae): Ecological consequences and
   adaptive significance of markovian movements in a patchy

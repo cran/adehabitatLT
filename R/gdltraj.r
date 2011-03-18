@@ -40,5 +40,6 @@ gdltraj <- function(x, min, max,
     class(x) <- c("ltraj", "list")
     attr(x, "typeII") <-  TRUE
     attr(x, "regular") <-  is.regular(x)
+    x <- rec(x)
     return(x)
   }

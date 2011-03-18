@@ -16,7 +16,9 @@ wawotest(x, \dots)
 \method{wawotest}{ltraj}(x, \dots)
 }
 \arguments{
-  \item{x}{for \code{wawotest.default} }
+  \item{x}{for \code{wawotest.default}, a vector containing the
+    successive observations building the series.
+    For \code{wawotest.ltraj}, an object of class \code{ltraj}.}
   \item{alter}{a character string specifying the alternative hypothesis,
     must be one of "greater" (default), "less" or "two-sided"}
   \item{\dots}{additional arguments to be passed to other functions}

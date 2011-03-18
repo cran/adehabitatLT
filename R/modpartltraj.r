@@ -3,7 +3,7 @@ modpartltraj <- function(tr, limod)
     if (!inherits(tr,"ltraj"))
         stop("tr should be of class ltraj")
     if (length(tr) > 1)
-        stop("only implemented for only one traject")
+        stop("only implemented for only one trajectory")
     a <- tr[[1]]
 
     re <- do.call("cbind", lapply(limod, function(mod) {
@@ -30,7 +30,7 @@ print.modpartltraj <- function(x, ...)
     if (!inherits(x, "modpartltraj"))
         stop("non convenient x")
     cat("***************************************\n")
-    cat("* Probabilities computed for a traject \n")
+    cat("* Probabilities computed for a trajectory \n")
     cat("* with the following models: \n\n")
     print(colnames(x))
 }
@@ -91,13 +91,12 @@ bestpartmod <- function(mods, Km=30, plotit=TRUE,
 
 
 
-
 partmod.ltraj <- function(tr, npart, mods, na.manage=c("prop.move","locf"))
 {
     if (!inherits(tr, "ltraj"))
         stop("tr should be of class \"ltraj\"")
     if (length(tr)>1)
-        stop("only one traject can be passed")
+        stop("only one trajectory can be passed")
     if (!inherits(mods,"modpartltraj"))
         stop("mods should be of class modpartltraj")
     na.manage <- match.arg(na.manage)
@@ -176,10 +175,9 @@ partmod.ltraj <- function(tr, npart, mods, na.manage=c("prop.move","locf"))
             ff <- cseq(is.na(gg$dist))
             nna <- sum(ff[[length(ff)]])
             if (nna>1) {
-                prot <- sum(typmod[c(curmod[i-1],
-                                     curmod[i])])
-                if (prot > 0.00000001) {
-                    nna1 <- floor(nna*typmod[curmod[i-1]]/prot)
+                prot <- sum(typmod[names(typmod)%in%c(curmod[i - 1], curmod[i])])
+                if (prot > 1e-08) {
+                    nna1 <- floor(nna * typmod[names(typmod)==curmod[i - 1]]/prot)
                 } else {
                     nna1 <- floor(nna/2)
                 }
