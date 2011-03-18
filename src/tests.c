@@ -3361,11 +3361,11 @@ SEXP calculDparhab(SEXP df, SEXP hab, SEXP xll, SEXP yll, SEXP cs, SEXP nrow,
 {
     SEXP xl, yl, tem, typpas, habp, Nc, Dh, dfso, PAtmp, PA2;
     int i, k, nlocs, lp;
-    double t1, t2, l1, l2, xt, yt, delta2, tau, xll2, yll2;
+    double t1, t2, l1, l2, xt, yt, delta2, xll2, yll2;
 
     k = INTEGER(nombrehab)[0];
     nlocs = length(VECTOR_ELT(df,0));
-    tau = REAL(cs)[0]/100.0;
+
 
     PROTECT(xl = coerceVector(VECTOR_ELT(df,0), REALSXP));
     PROTECT(yl = coerceVector(VECTOR_ELT(df,1), REALSXP));
@@ -3472,10 +3472,9 @@ SEXP calculDparhab(SEXP df, SEXP hab, SEXP xll, SEXP yll, SEXP cs, SEXP nrow,
 
 double calcv(SEXP xl, SEXP yl, SEXP da, double D, SEXP pc, int k)
 {
-    int n, i, ori;
+    int n, i;
     double vrais, d, T, t;
     
-    ori=k;
     n = length(xl);
     vrais = 0.0;
     for (i = 1; i < n-1; i++) {
@@ -3519,10 +3518,10 @@ double compteN(SEXP xl, SEXP pc, int k)
 SEXP Dmv(SEXP df, SEXP Dr, SEXP pcr, SEXP kr)
 {
     SEXP xl, yl, da, D, sor, pc;
-    double fx1, fx2, fx3, fx4, x1, x2, x3, x4, phi;
-    int ndr, conv, kk;
+    double fx2, fx4, x1, x2, x3, x4, phi;
+    int conv, kk;
     
-    ndr = length(Dr);
+
     PROTECT(D = coerceVector(Dr, REALSXP));
     PROTECT(pc = coerceVector(pcr, INTSXP));
     PROTECT(xl = coerceVector(VECTOR_ELT(df,0), REALSXP));
@@ -3535,8 +3534,8 @@ SEXP Dmv(SEXP df, SEXP Dr, SEXP pcr, SEXP kr)
     x1 = REAL(D)[0];
     x3 = REAL(D)[1];
     phi = (-1.0 + sqrt(5.0))/2.0;
-    fx1 = calcv(xl, yl, da, x1, pc, kk);
-    fx3 = calcv(xl, yl, da, x3, pc, kk);
+
+
     
     conv = 0;
     while (!conv) {
@@ -3547,7 +3546,6 @@ SEXP Dmv(SEXP df, SEXP Dr, SEXP pcr, SEXP kr)
 
 	if (fx2 < fx4) {
 	    x1 = x2;
-	    fx1 = fx2;
 	} else {
 	    x3 = x4;
 	}
@@ -3599,10 +3597,10 @@ double calcvb(SEXP xl, SEXP yl, SEXP da, double D, SEXP pc, SEXP nb, int k)
 SEXP Dmvb(SEXP df, SEXP Dr, SEXP pcr, SEXP nbr, SEXP kk)
 {
     SEXP xl, yl, da, D, sor, pc, nb;
-    double fx1, fx2, fx3, fx4, x1, x2, x3, x4, phi;
-    int ndr, conv, k;
+    double fx2, fx4, x1, x2, x3, x4, phi;
+    int conv, k;
     
-    ndr = length(Dr);
+
     PROTECT(D = coerceVector(Dr, REALSXP));
     PROTECT(pc = coerceVector(pcr, INTSXP));
     PROTECT(xl = coerceVector(VECTOR_ELT(df,0), REALSXP));
@@ -3616,8 +3614,8 @@ SEXP Dmvb(SEXP df, SEXP Dr, SEXP pcr, SEXP nbr, SEXP kk)
     x1 = REAL(D)[0];
     x3 = REAL(D)[1];
     phi = (-1.0 + sqrt(5.0))/2.0;
-    fx1 = calcvb(xl, yl, da, x1, pc, nb, k);
-    fx3 = calcvb(xl, yl, da, x3, pc, nb, k);
+
+
     
     conv = 0;
     while (!conv) {
@@ -3628,7 +3626,6 @@ SEXP Dmvb(SEXP df, SEXP Dr, SEXP pcr, SEXP nbr, SEXP kk)
 
 	if (fx2 < fx4) {
 	    x1 = x2;
-	    fx1 = fx2;
 	} else {
 	    x3 = x4;
 	}
