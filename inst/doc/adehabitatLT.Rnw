@@ -18,7 +18,7 @@ the {\tt adehabitatLT} Package }
   Office national de la chasse et de la faune
   sauvage\\
   Saint Benoist -- 78610 Auffargis -- France.}
-\date{Feb 2011}
+\date{Mar 2011}
 
 \begin{document}
 

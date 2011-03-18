@@ -1,6 +1,9 @@
 "simm.brown" <- function(date=1:100, x0=c(0,0), h = 1, id="A1", burst=id)
 {
-    class(date) <- c("POSIX","POSIXct")
+    if (!inherits(date, "POSIXct")) {
+        class(date) <- c("POSIXct", "POSIXt")
+        attr(date, "tzone") <- ""
+    }
     y0 <- x0[2]
     x0 <- x0[1]
     n <- length(date)

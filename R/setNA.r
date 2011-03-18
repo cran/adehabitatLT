@@ -7,6 +7,7 @@ setNA <- function(ltraj, date.ref, dt, tol=dt/10,
         stop("ltraj should be of type II (time recorded)")
     if (is.numeric(date.ref)) {
         class(date.ref) <- c("POSIXct","POSIXt")
+        attr(date.ref, "tzone") <- attr(ltraj[[1]]$date, "tzone")
     }
     if (inherits(date.ref,"POSIXlt"))
         date.ref <- as.POSIXct(date.ref)
@@ -45,6 +46,7 @@ setNA <- function(ltraj, date.ref, dt, tol=dt/10,
          yy[laou] <- x$y
          da[laou] <- x$date
          class(da) <- c("POSIXct","POSIXt")
+         attr(da, "tzone") <- attr(ltraj[[1]]$date, "tzone")
          return(as.ltraj(data.frame(xx,yy), da, id=attr(x,"id"),
                          burst = attr(x,"burst"), typeII=TRUE,
                          infolocs=infol, ...))

@@ -1,8 +1,12 @@
 "simm.levy" <- function (date = 1:500, mu = 2, l0 = 1, x0 = c(0, 0), id = "A1",
    burst = id, typeII = TRUE)
 {
-   if (typeII)
-       class(date) <- c("POSIX", "POSIXct")
+   if (typeII) {
+       if (!inherits(date, "POSIXct")) {
+           class(date) <- c("POSIXct", "POSIXt")
+           attr(date, "tzone") <- ""
+       }
+   }
    n <- length(date)
    dt <- c(diff(unclass(date)))
    if (all(dt - dt[1] > 1e-07))

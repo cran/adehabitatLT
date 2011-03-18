@@ -1,14 +1,18 @@
 "simm.mba" <- function(date=1:100, x0=c(0,0), mu=c(0,0), sigma=diag(2),
                        id="A1", burst=id)
   {
-    class(date) <- c("POSIX","POSIXct")
-    if (!is.matrix(sigma))
+      if (!inherits(date, "POSIXct")) {
+          class(date) <- c("POSIXct", "POSIXt")
+          attr(date, "tzone") <- ""
+      }
+
+      if (!is.matrix(sigma))
       stop("matrix expected")
     if (!all(dim(sigma)==2))
       stop("matrix 2*2 expected")
     if (sum((t(sigma)-sigma)^2)> 1e-7)
       stop("symetric matrix expected")
-    if (any(eigen(sigma, sym=TRUE)$value< -1e-7))
+    if (any(eigen(sigma, symmetric=TRUE)$value< -1e-7))
       stop("positive matrix expected")
 
     n <- length(date)

@@ -2897,7 +2897,7 @@ SEXP RasterPas(SEXP df, SEXP xllr, SEXP yllr, SEXP cs, SEXP type1)
 	y2 = REAL(yl)[i+1];
 	
 	/* identification des coordonnées initiales et finales */	
-	dist = pythag(x2-x1, y2-y1);
+	dist = hypot(x2-x1, y2-y1);
 	k = (int) round(50.0*dist/csi);
 	if (k == 0)
 	    k++;
@@ -2909,7 +2909,7 @@ SEXP RasterPas(SEXP df, SEXP xllr, SEXP yllr, SEXP cs, SEXP type1)
 	    xt = x1 + ((double) j)*(x2-x1)/((double) k);
 	    xt = xll + round((xt - xll)/csi)*csi;
 	    yt = yll + round((yt - yll)/csi)*csi;
-	    if (pythag(yt - yc, xt - xc) > 0.00000000001) {
+	    if (hypot(yt - yc, xt - xc) > 0.00000000001) {
 		xc = xt;
 		yc = yt;
 		if (INTEGER(type1)[0] != 0) {

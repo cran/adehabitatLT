@@ -4,8 +4,12 @@
 {
     if (!require(CircStats))
         stop("package CircStats required")
-    if (typeII)
-        class(date) <- c("POSIX","POSIXct")
+    if (typeII) {
+        if (!inherits(date, "POSIXct")) {
+            class(date) <- c("POSIXct", "POSIXt")
+            attr(date, "tzone") <- ""
+        }
+    }
     n <- length(date)
     dt <- c(diff(unclass(date)))
     if (all(dt-dt[1]>1e-7))

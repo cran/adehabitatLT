@@ -249,6 +249,7 @@ summary.ltraj <- function(object,...)
         beg <- unlist(lapply(object, function(i) i$date[1]))
         endd <- unlist(lapply(object, function(i) i$date[nrow(i)]))
         class(beg) <- class(endd) <- c("POSIXct","POSIXt")
+        attr(beg, "tzone") <- attr(endd, "tzone") <- attr(object[[1]]$date, "tzone")
         pr <- data.frame(id=id, burst=burst, nb.reloc=nr, NAs=na,
                          date.begin=beg, date.end=endd)
     } else {

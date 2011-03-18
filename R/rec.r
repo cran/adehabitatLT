@@ -19,7 +19,6 @@ rec <- function(x, slsp=c("remove","missing"))
                 attr(x[[i]],"infolocs") <- lif[[i]]
             }
         }
-
     }
 
     ## Recomputation

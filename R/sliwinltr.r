@@ -51,6 +51,7 @@ sliwinltr <- function(ltraj, fun, step, type=c("locs","time"),
                 re <- fun(xt,...)
                 return(c(da[i],re))})))
             class(re[,1]) <- c("POSIXct","POSIXt")
+            attr(re[,1], "tzone") <- attr(ltraj[[1]]$date, "tzone")
             names(re) <- c("date","y")
             return(re)
         })

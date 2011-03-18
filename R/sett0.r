@@ -11,6 +11,7 @@ sett0 <- function(ltraj, date.ref, dt,
         date.ref <- as.POSIXct(date.ref)
     if (is.integer(date.ref)) {
         class(date.ref) <- c("POSIXct","POSIXt")
+        attr(date.ref, "tzone") <- attr(ltraj[[1]]$date, "tzone")
     }
     if (!inherits(date.ref,"POSIXct"))
         stop("date.ref should be of class \"POSIXct\"")
@@ -32,7 +33,7 @@ sett0 <- function(ltraj, date.ref, dt,
         if (any(abs(as.numeric(dc) - as.numeric(x$date)) > tol))
             stop("ltraj contains irregular data (time lag > or < tol)")
         class(x$date) <- c("POSIXct","POSIXt")
-
+        attr(x$date, "tzone") <- attr(ltraj[[1]]$date, "tzone")
         if (correction.xy=="cs") {
             rr <- .corrXY(x$x, x$y,
                           as.numeric(dc),
