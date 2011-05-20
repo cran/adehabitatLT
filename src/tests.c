@@ -4147,7 +4147,7 @@ SEXP redistime(SEXP xyt, SEXP tlr, SEXP sam0r)
     ynr = REAL(yn);
     tnr = REAL(tn);
 
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < nn; i++) {
 	tnr[i] = -10.0;
 	xnr[i] = -10.0;
 	ynr[i] = -10.0;
