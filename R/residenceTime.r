@@ -7,9 +7,9 @@ residenceTime <- function(lt, radius, maxt, addinfo=FALSE,
         stop("Only one radius allowed in this function")
     units <- match.arg(units)
     if (units == "hours")
-        maxt <- maxt/3600
+        maxt <- maxt*3600
     if (units == "days")
-        maxt <- maxt/(3600 * 24)
+        maxt <- maxt*(3600 * 24)
 
     res <- lapply(1:length(lt), function(i) {
         x <- lt[[i]]
