@@ -1,4 +1,4 @@
-b34a90eb569a85248041748297b5aa7b *DESCRIPTION
+7ef56d8a5939a05154595320439516c0 *DESCRIPTION
 381630e2235a7a517016fd5bba9935d6 *NAMESPACE
 4f8be5a5712dce839112140493d49ec6 *R/acfdistang.R
 14b8232ec33b076b670f2ad3eec788a8 *R/altr.r
@@ -37,7 +37,7 @@ d5e366197d6845fda031f0ab2913ed68 *R/rasterize.r
 5e79673c4e8309d554434cc3982e9155 *R/rchi.r
 6e2f8ff742761f79fe76fb289880ee58 *R/rec.r
 955fcffd7d8f217963abc73d74377478 *R/redisltraj.r
-e7ed22e727ad979aa671131cbac8451a *R/residenceTime.r
+c2291ef7880fb2324318c54154722c6f *R/residenceTime.r
 3fbbc55f51a1f06651d0089a7361fc20 *R/runsNAltraj.r
 fe75278e924423b5caebaed3390f8e4d *R/set.limits.r
 f57e679503c404a464b99fd3159305df *R/setNA.r
@@ -77,7 +77,7 @@ e9a68fb676c329f435ad38f6a2e6bbab *data/teal.rda
 72a0257812b78f8d7432dfd712a837d4 *data/whale.rda
 54e83d379e7576b9d749749e6e6b89e7 *inst/CITATION
 18ed47e868c4d393178f9ace1b096fe8 *inst/doc/adehabitatLT.Rnw
-375ca8c614ff8abc96a2bbc9360e356b *inst/doc/adehabitatLT.pdf
+c355d353a910c04640aa323df2a579ff *inst/doc/adehabitatLT.pdf
 817cbe20fd57d176594c96a49ee05827 *inst/doc/sim.Rdata
 9db24bd56a096ee37f0a9fcc0b65f7ea *inst/doc/sim2.Rdata
 b708a00bf03cbf6fa60aae2d2f635fd1 *inst/doc/sim3.Rdata

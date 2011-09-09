@@ -28,6 +28,12 @@ residenceTime <- function(lt, radius, maxt, addinfo=FALSE,
             names(x) <- paste("RT", format(radius, scientific=FALSE), sep=".")
             return(x)
         })
+        if (!is.null(infolocs(lt))) {
+            il <- infolocs(lt)
+            res <- lapply(1:length(il), function(j) {
+                cbind(il[[j]], res[[j]])
+            })
+        }
         infolocs(lt) <- res
         res <- lt
     } else {
