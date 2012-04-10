@@ -2116,7 +2116,7 @@ void testindepangl (double *sim, double *ang, int *nang, int *debut, int *fin, i
       }
     }
   }
-  for (j=0; j<=*ni+1; j++) {
+  for (j=0; j<=*ni; j++) {
     sim[j]=2*sim[j];
 
   }

@@ -1,4 +1,4 @@
-7ef56d8a5939a05154595320439516c0 *DESCRIPTION
+ca0f793a52d1f330244a00a2168b2905 *DESCRIPTION
 381630e2235a7a517016fd5bba9935d6 *NAMESPACE
 4f8be5a5712dce839112140493d49ec6 *R/acfdistang.R
 14b8232ec33b076b670f2ad3eec788a8 *R/altr.r
@@ -77,7 +77,7 @@ e9a68fb676c329f435ad38f6a2e6bbab *data/teal.rda
 72a0257812b78f8d7432dfd712a837d4 *data/whale.rda
 54e83d379e7576b9d749749e6e6b89e7 *inst/CITATION
 18ed47e868c4d393178f9ace1b096fe8 *inst/doc/adehabitatLT.Rnw
-c355d353a910c04640aa323df2a579ff *inst/doc/adehabitatLT.pdf
+634dd5ceb21c3873042547cb6a23fdff *inst/doc/adehabitatLT.pdf
 817cbe20fd57d176594c96a49ee05827 *inst/doc/sim.Rdata
 9db24bd56a096ee37f0a9fcc0b65f7ea *inst/doc/sim2.Rdata
 b708a00bf03cbf6fa60aae2d2f635fd1 *inst/doc/sim3.Rdata
@@ -141,4 +141,4 @@ f60b4532d48f317fae03d05ccbe5ffc0 *man/trajdyn.Rd
 d4dd322da5d0bcbad632f0559b13014f *man/wawotest.Rd
 5b676cfe8529035bc0fb5f1cfe10a047 *man/whale.Rd
 e7b409d1694d2c2d679ba86cda9eb0bc *man/which.ltraj.Rd
-dfdf0b54bf55baaf4030e9bf3adbe8a1 *src/tests.c
+769bb520a16f602f4a3bdd4682e00aa9 *src/tests.c
