@@ -31,7 +31,7 @@ redisltraj(l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
   The rediscretization of trajectory has been advocated by several
   authors in the literature (Turchin 1998, Bovet & Benhamou 1988).  It
   is also the first step of the computation of the fractal dimension of
-  the path (Sugihara & May 1990).\cr
+  the path (Sugihara & May 1990).
 
   When \code{type="time"}, a linear interpolation is performed to find
   new relocations separated by the given time lag.

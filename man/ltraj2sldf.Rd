@@ -4,13 +4,13 @@
 \title{ Conversion of the class "ltraj" from/to the package "sp" }
 \description{
   These functions convert the class "ltraj" available in adehabitatLT toward
-  classes available in the package \code{sp} and conversely.\cr
-  \cr
+  classes available in the package \code{sp} and conversely.
+
   \code{ltraj2spdf} converts an object of class \code{ltraj} into an
-  object of class \code{SpatialPointsDataFrame}.\cr
-  \cr
+  object of class \code{SpatialPointsDataFrame}.
+
   \code{ltraj2sldf} converts an object of class \code{ltraj} into an
-  object of class \code{SpatialLinesDataFrame}.\cr
+  object of class \code{SpatialLinesDataFrame}.
 }
 \usage{
 ltraj2spdf(ltr)

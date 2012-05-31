@@ -49,7 +49,7 @@ qqchi(y, ...)
   variance = 1.  The function \code{qqnorm.ltraj} performs a
   quantile-quantile plot of \code{dx/sqrt(dt)} or \code{dy/sqrt(dt)}
   vs. a normal distribution to verify wether the Brownian motion
-  assumption is correct.\cr
+  assumption is correct.
   
   Furthermore, the quantity \code{(dx^2 + dy^2)/dt} should be
   distributed according to a Chi-squared distribution with two degrees
@@ -59,7 +59,7 @@ qqchi(y, ...)
   relocations). The function \code{qqchi.ltraj} performs
   quantile-quantile plot of \code{distance/sqrt(dt)} vs. a Chi
   distribution to verify wether the Brownian motion
-  assumption is correct.\cr  
+  assumption is correct.
 }
 \value{
   for functions dealing with objects of class \code{ltraj}, a list with

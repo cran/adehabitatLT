@@ -67,6 +67,7 @@ findpath(lav, K, plotit = TRUE)
     functions}
 }
 \details{
+
   The method of Lavielle (1999, 2005) per se finds the best segmentation
   of a time series, given that it is built by \code{K} segments.  It
   searches the segmentation for which a contrast function (measuring the
@@ -80,7 +81,7 @@ findpath(lav, K, plotit = TRUE)
   the mean and the variance varies between segments.  It is required to
   specify a value for the minimum number of observations \code{Lmin} in
   a segment, as well as the maximum number of segments \code{Kmax} in
-  the series.\cr
+  the series.
 
   There are several approaches to estimate the best number of segments
   \code{K} to partition the time series.  One possible approach is
@@ -123,13 +124,13 @@ findpath(lav, K, plotit = TRUE)
 
   The function \code{lavielle.ltraj} also returns a list of class
   \code{lavielle}, with an attribute \code{"typeseg"} set to
-  \code{"ltraj"}. \cr
+  \code{"ltraj"}. 
   
   The function \code{chooseseg} returns the optimal number of segments
   when \code{output = "opt"}, and a dataframe containing the value of
   the contrast function \code{Jk} and of the second derivative \code{D}
   of the standardized contrast function for each possible value of
-  \code{K}, if \code{output = "full"}.\cr
+  \code{K}, if \code{output = "full"}.
 
   The function \code{findpath} return a list containing vectors giving
   the index of the first and last observations in each segment, when the

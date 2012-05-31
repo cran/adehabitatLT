@@ -29,14 +29,14 @@ setNA(ltraj, date.ref, dt, tol = dt/10,
   creation of the object of class \code{ltraj}.  For example, GPS
   collars often fail to locate the animal, so that the GPS data imported
   within R contain missing values.  It is recommended to *not remove*
-  these missing values.\cr
+  these missing values.
   
   However, sometimes, the data come without any information concerning
   the placement of these missing values.  If the trajectory is
   approximately regular (i.e. approximately constant time lag), it is
   possible to determine where these missing values should occur in the
   object of class \code{ltraj} (and in the optional attribute
-  \code{infolocs}).  This is the role of the function \code{setNA}.\cr
+  \code{infolocs}).  This is the role of the function \code{setNA}.
 
   The relocations in the object of class \code{ltraj} may not have been
   collected at exactly identical time lag (e.g. a relocation is
@@ -45,7 +45,7 @@ setNA(ltraj, date.ref, dt, tol = dt/10,
   \code{tol}.  Because of this imprecision, it is necessary to pass a
   reference date as argument to the function \code{setNA}. This
   reference date is used to determine at which time the missing values
-  should be placed.\cr
+  should be placed.
   
   The reference date is chosen so that the rest of the division of
   (date.relocations - reference.date) by the time lag \code{dt} is equal

@@ -11,7 +11,7 @@ rasterize.ltraj <- function(ltr, map)
 
     lapply(1:length(ltr), function(i) {
         x <- ltr[[i]][,c("x","y")]
-        res <- .Call("RasterPas", x, xll, yll, cs, as.integer(0))
+        res <- .Call("RasterPas", x, xll, yll, cs, as.integer(0), PACKAGE="adehabitatLT")
         res <- as.data.frame(res)
         names(res) <- c("x","y","step")
         coordinates(res) <- c("x","y")

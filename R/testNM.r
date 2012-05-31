@@ -602,7 +602,7 @@ testNM <- function(NM, count=TRUE)
             x$par$treatment <- quote(treatment(x,par))
             x$par$constraint <- quote(constraint(x,par))
             .Call("simulmod", x$xyt, x$nrep, x$type,
-                  x$par, as.integer(count))
+                  x$par, as.integer(count), PACKAGE="adehabitatLT")
         })
     } else {
         lixyt <- NM$lixyt
@@ -636,7 +636,7 @@ testNM <- function(NM, count=TRUE)
                      as.integer(count),
                      env2, quote(convltraj(lixyt, na, nlo)), na, nlo,
                      quote(treatment(x, par)), tpar, quote(constraint(x,par)),
-                     cpar)
+                     cpar, PACKAGE="adehabitatLT")
     }
     return(res)
 }

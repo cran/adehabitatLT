@@ -32,19 +32,19 @@ sett0(ltraj, date.ref, dt, correction.xy = c("none", "cs"),
   successive relocations with the timing of relocation.  Regular
   trajectories are characterized by a constant time lag \code{dt}
   between successive relocations (don't mix animals located every 10
-  minutes and animals located every day in a regular trajectory).\cr
+  minutes and animals located every day in a regular trajectory).
   
   However, in many cases, the actual time lag in the data may not be
   equal to the theoretical time lag \code{dt}: there may be some
   negligible imprecision in the time of collection of the data (e.g. an
-  error of a few seconds on a time lag of one hour).\cr 
+  error of a few seconds on a time lag of one hour).
   
   But many functions of adehabitatLT require exact regular
   trajectories. \code{sett0} allows to round the date so that all the
   successive relocations are separated exactly by \code{dt}.  The
   function \code{sett0} requires that the imprecision is at most equal
   to \code{tol}. To proceed, it is necessary to pass a reference date as
-  argument.\cr
+  argument.
 
   The reference date is chosen so that the rest of the division of
   (date.relocations - reference.date) by \code{dt} is equal to zero.
@@ -55,7 +55,7 @@ sett0(ltraj, date.ref, dt, correction.xy = c("none", "cs"),
   at 05H00, because these two dates are separated by an exact number of
   hours.  Alternatively, the August 1st 2007 at 05H30 is an uncorrect
   reference date, because the number of hours separating these two dates
-  is not an integer.\cr
+  is not an integer.
   
   Note that this rounding adds an error on the relocation.  For example,
   the position of a moving animal at 17H57 is not the same as its
@@ -65,7 +65,7 @@ sett0(ltraj, date.ref, dt, correction.xy = c("none", "cs"),
   important, a correction on the relocation is needed.  The function
   \code{sett0} may correct the relocations based on the hypothesis of
   constant speed (which is not necessarily biologically relevant, see
-  examples).\cr
+  examples).
   
   Note finally that missing values can be present in the trajectory.
   Indeed, there are modes of data collection that fail to locate the

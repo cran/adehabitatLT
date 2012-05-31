@@ -32,7 +32,7 @@ simm.brown(date = 1:100, x0 = c(0, 0), h = 1, id = "A1", burst = id)
   \code{F(s)} (the next increment does not depend on the present or past
   location); (iii) \code{B2(t) - B2(s)} follows a bivariate normal
   distribution with mean \code{c(0,0)} and with variance equal to
-  \code{(t-s)}.\cr
+  \code{(t-s)}.
 
   Note that for a given parameter \code{h}, the process \code{1/h * B2(
     t * h^2 )} is a Brownian motion.  The function \code{simm.brown}

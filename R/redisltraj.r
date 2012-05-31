@@ -72,7 +72,7 @@ redisltraj <- function (l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
     } else {
         nl <- do.call("c.ltraj", lapply(1:length(l), function(i) {
             oo <- ld(l[i])[,1:3]
-            ii <- as.data.frame(.Call("redistime", oo, as.double(u), as.double(samplex0)))
+            ii <- as.data.frame(.Call("redistime", oo, as.double(u), as.double(samplex0)), PACKAGE="adehabitatLT")
             df <- ii[ii[,3]>0,]
             da <- df[,3]
             class(da) <- c("POSIXct","POSIXt")

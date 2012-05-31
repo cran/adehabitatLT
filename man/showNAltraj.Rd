@@ -10,10 +10,10 @@
   
   \code{summaryNAltraj} returns a summary of the number and proportion
   of missing values for each burst of an object of class
-  \code{ltraj}.\cr
+  \code{ltraj}.
 
   \code{plotNAltraj} plots the missing values in an object of class
-  \code{ltraj} against the time.\cr
+  \code{ltraj} against the time.
 }
 \usage{
 runsNAltraj(x, nrep = 500, plotit = TRUE, \dots) 

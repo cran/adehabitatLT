@@ -6,14 +6,18 @@
 \alias{rec}
 \title{Working with Trajectories in 2D Space: the Class ltraj}
 \description{
+
   The class \code{ltraj} is intended to store trajectories of
   animals.  Trajectories of type II correspond to trajectories for which the
   time is available for each relocation (mainly GPS and
   radio-tracking).  Trajectories of type I correspond to trajectories for which
-  the time has not been recorded (e.g. sampling of tracks in the snow).\cr 
-  \code{as.ltraj} creates an object of this class.\cr
+  the time has not been recorded (e.g. sampling of tracks in the snow).
+  
+  \code{as.ltraj} creates an object of this class.
+  
   \code{summary.ltraj} returns the number of relocations (and missing
-  values) for each "burst" of relocations and each animal.\cr
+  values) for each "burst" of relocations and each animal.
+  
   \code{rec} recalculates the descriptive parameters of an object of
   class ltraj (e.g. after a modification of the contents of this object,
   see examples)
@@ -51,12 +55,13 @@ rec(x, slsp = c("remove", "missing"))
     functions \code{summary} and \code{print}}
 }
 \details{ 
+
   Objects of class \code{ltraj} allow the analysis of animal
   movements.  They contain the descriptive parameters of the moves
   generally used in such studies (coordinates of the relocations, date,
   time lag, relative and absolute angles, length of moves, increases
   in the x and y direction, and dispersion R2n, see below), as well as
-  optionally metadata on the relocations (precision, etc.).\cr
+  optionally metadata on the relocations (precision, etc.).
   
   The computation of turning angles may be problematic when successive
   relocations are located at the same place.  In such cases, at least
@@ -68,7 +73,7 @@ rec(x, slsp = c("remove", "missing"))
   value returned for relocation r3 in such cases.  If \code{slsp ==
     "missing"}, a missing value is returned also for the relocation r3.
   If \code{slsp == "remove"}, the turning angle computed in r3 is the
-  angle between the moves r1-r2 and r3-r4.\cr
+  angle between the moves r1-r2 and r3-r4.
 
   For a given individual, trajectories are often sampled as "bursts"
   of relocations.  For example, when an animal is monitored using
@@ -77,7 +82,7 @@ rec(x, slsp = c("remove", "missing"))
   autocorrelated, but the data from two circuits may be sampled at long
   intervals in time).  These bursts are indicated by the attribute
   \code{burst}. Note that the bursts should be unique: do not use the
-  same burst id for bursts collected on different animals.\cr
+  same burst id for bursts collected on different animals.
 
   Two types of trajectories can be stored in objects of class \code{ltraj}:
   trajectories of type I correspond to trajectories where the time of
@@ -110,19 +115,19 @@ rec(x, slsp = c("remove", "missing"))
   functions are intended to help the user to transform an object of
   class \code{ltraj} into a regular object (see for example
   \code{help(sett0)}, and particularly the examples to see how regular
-  trajectories can be obtained from GPS data).\cr
+  trajectories can be obtained from GPS data).
   
   Nevertheless, the class \code{ltraj} allows for variable time lag,
   which often occur with some modes of data collection (e.g. with Argos
   collars). But *we stress that their analysis is still an open
-  question!!*\cr
+  question!!*
   
   Finally, the class \code{ltraj} deals with missing values in the
   trajectories.  Missing values are frequent in the trajectories of
   animals collected using telemetry: for example, GPS collar may not
   receive the signal of the satellite at the time of relocation. Most
   functions dealing with the class \code{ltraj} have a specified
-  behavior in case of missing values.\cr
+  behavior in case of missing values.
 
   It is recommended to store the missing values in the data *before*
   the creation of the object of class \code{ltraj}.  For example, the
@@ -132,14 +137,14 @@ rec(x, slsp = c("remove", "missing"))
   locate the animal at certain time of the day or in certain habitat
   types), and *the analysis of these missing values should be part of the
   analysis of the trajectory* (e.g. see \code{help(runsNAltraj)} and
-  \code{help(plotNAltraj)}.\cr
+  \code{help(plotNAltraj)}.
 
   However, sometimes, the data come without any information concerning
   the location of these missing values.  If the trajectory is
   approximately regular (i.e. approximately constant time lag), it is
   possible to determine where these missing values should occur in the
   object of class \code{ltraj}.  This is the role of the function
-  \code{setNA}.\cr
+  \code{setNA}.
 
   One word now about the attribute \code{infolocs} of the object of
   class \code{ltraj}.  This attribute is intended to store metadata
@@ -190,8 +195,9 @@ rec(x, slsp = c("remove", "missing"))
   Missing values are returned otherwise.}
 }
 \references{
-  Calenge, C., Dray, S. and Royer, M. (in prep.) Studying Animals
-  movements with the R software: what is a trajectory?
+  Calenge, C., Dray, S. and Royer, M. (2009) The concept of animals'
+  trajectories from a data analysis perspective. \emph{Ecological
+  Informatics}, \bold{4}: 34--41.
 }
 \author{
   Clement Calenge \email{clement.calenge@oncfs.gouv.fr}\cr

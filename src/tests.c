@@ -2045,7 +2045,7 @@ void runsltr(int *xr, int *nr, double *res, int *nrepr)
 
   
   for (i = 1; i <= n; i++) {
-    x[i] = xr[i];
+    x[i] = xr[i-1];
     numero[i] = i;
   }
   
@@ -5116,6 +5116,192 @@ SEXP simulmodmv(SEXP lixyt, SEXP nrepr, SEXP litype, SEXP lipar, SEXP countr,
 
     UNPROTECT(3);
     return(liso);
+}
+
+
+
+/* The number of visits */
+SEXP nvisits(SEXP xyt, SEXP distr, SEXP maxt)
+{
+    /* declaring the variables */
+    int n,i, j, *deds, sortie, *nvisi, tjdeds;
+    double *xr, *yr, *tr, dist, maxtr;
+    double refti, refti2, a, u, v, p;
+    SEXP x, y, t, dedsr, nvisit;
+    
+    /* coercing the arguments */
+    PROTECT(x = coerceVector(VECTOR_ELT(xyt,0), REALSXP));
+    PROTECT(y = coerceVector(VECTOR_ELT(xyt,1), REALSXP));
+    PROTECT(t = coerceVector(VECTOR_ELT(xyt,2), REALSXP));
+
+    n = length(x); /* number of relocations */
+    PROTECT(dedsr = allocVector(INTSXP, n)); /* will be used to check whether 
+						the relocation j
+						is within the distance distr 
+						of the relocation i */
+    PROTECT(nvisit = allocVector(INTSXP, n)); /* the output vector */
+
+    /* for the ease of manipulation: gets the pointers */
+    xr = REAL(x);
+    yr = REAL(y);
+    tr = REAL(t);
+    deds = INTEGER(dedsr);
+    nvisi = INTEGER(nvisit);
+
+    /* get the three constants passed as arguments */
+    maxtr = REAL(maxt)[0];
+    dist = REAL(distr)[0];
+    
+    /* Now, calculate the residence time for each relocation */
+    for (i = 0; i < n; i++) {
+	/* At least one visit in the relocation */
+	nvisi[i] = 1;
+	
+	/* checks which relocations are within the distance dist from reloc j */
+	for (j = 0; j < n; j++) {
+	    if (hypot(xr[i]-xr[j], yr[i]-yr[j])<=dist) {
+		deds[j] = 1;
+	    } else {
+		deds[j] = 0;
+	    }
+	}
+	
+	/* calculates the backward number of visits */
+	sortie = 0; /* = 0 when the animal is still 
+		       inside the circle; =1 otherwise */
+	refti = tr[i]; /* last backward time */
+	refti2 = tr[i]; /* current time of circle crossing */
+	
+	
+	/* if this is not the first relocation (otherwise, the number of backward visits is 0) */
+	if (i != 0) {
+	    
+	    /* not outside the circle since relocation i */
+	    tjdeds = 1;
+	    
+	    /* for all previous relocations (because backward) */
+	    for (j = i-1; j>=0; j--) {
+		
+		/* if the relocation is outside the circle */
+		if (deds[j]==0) {
+
+		    /* if this is the end of a movement coming from inside */
+		    if (sortie==0) {
+			
+			/* we are outside */
+			sortie = 1;
+
+			/* interpolation of the current time of crossing.
+			   use the parallelogram with a basis equal to the distance dist,
+			   the diagonal corresponding to the vector connecting the
+			   the relocations i and j+1 and the "other side" corresponding
+			   to the segment having a length to be estimated.
+
+			   This parallelogram is included in a rectangle having the
+			   same diagonal as the parallelogram, one side defined by the 
+			   projection of i on the segment (j, j+1) and by the reloc 
+			   j+1 (its length is denoted u below); and the perpendicular 
+			   one defined by the reloc j+1 and the projection of i on 
+			   the vector orthogonal to the segment (j, j+1).
+			   
+			   The space in this rectangle that is not part of the parallelogram
+			   forms two rectangle triangles allowing to solve this problem, 
+			   estimating the length of the "other side" of the parallelogram,
+			   actually equal to p*u. p is the required proportion
+			*/
+			a = atan2(yr[j]-yr[j+1], xr[j]-xr[j+1]);
+			u = ((xr[i]-xr[j+1])*cos(a))+((yr[i]-yr[j+1])*sin(a));
+			v = ((yr[i]-yr[j+1])*cos(a))-((xr[i]-xr[j+1])*sin(a));
+			p = (sqrt(R_pow(dist, 2.0) - R_pow(v, 2.0))-fabs(u))/
+			    hypot(xr[j]-xr[j+1], yr[j]-yr[j+1]);
+			refti2 = tr[j+1] - p*(tr[j+1]-tr[j]);
+			
+			/* if this is the first time that the animal 
+			   cross the circle since relocation i */
+			if (tjdeds) {
+			    /* then defines the "last backward time" =
+			       current time of crossing. This means that for the 
+			       first time of crossing, there is no chance that
+			       this crossing results into an increment of 
+			       the number of visits
+			    */
+			    tjdeds = 0;
+			    refti = refti2;
+			}
+			
+			/* If the difference between the current time of
+			   crossing and the last backward time is larger
+			   than maxtr, increase the number of visits
+			 */
+			if (fabs(refti2 - refti) > maxtr) {
+			    nvisi[i]++;
+			}
+			/* and defines the new backward time */
+			refti = refti2;
+		    }
+		} else {
+		    /* We note that the animal is now out */
+		    if (sortie>0) {
+			sortie = 0;
+		    }
+		}
+	    }
+	}
+
+
+	/* forward time */
+	sortie = 0;
+	refti = tr[i];
+	refti2 = tr[i];
+	
+	/* if this is not the last relocation (otherwise, n forward visit = 0.0) */
+	if (i < (n-1)) {
+	    
+	    /* not outside the circle since relocation i */
+	    tjdeds = 1;
+
+	    /* for all next relocations */
+	    for (j = i+1; j<n; j++) {
+		
+		/* if the relocation is outside the circle */
+		if (deds[j]==0) {
+		    
+		    /* if this is the first relocation outside */
+		    if (sortie==0) {
+			sortie = 1;
+			/* interpolating the time when the animal come out
+			   of the circle. Same procedure as above
+			 */
+			a = atan2(yr[j]-yr[j-1], xr[j]-xr[j-1]);
+			u = ((xr[i]-xr[j-1])*cos(a))+((yr[i]-yr[j-1])*sin(a));
+			v = ((yr[i]-yr[j-1])*cos(a))-((xr[i]-xr[j-1])*sin(a));
+			p = (sqrt(R_pow(dist, 2.0) - R_pow(v, 2.0))-fabs(u))/
+			    hypot(xr[j]-xr[j-1], yr[j]-yr[j-1]);
+			refti2 = tr[j-1] + p*(tr[j]-tr[j-1]);
+			
+			if (tjdeds) {
+			    tjdeds = 0;
+			    refti = refti2;
+			}
+			if (fabs(refti2 - refti) > maxtr) {
+			    nvisi[i]++;
+			}
+			refti = refti2;
+		    }
+		} else {
+		    if (sortie>0) {
+			sortie = 0;
+		    }
+		}
+	    }
+	}
+    }
+    
+    UNPROTECT(5);
+    
+    /* output */
+    return(nvisit);
+    
 }
 
 

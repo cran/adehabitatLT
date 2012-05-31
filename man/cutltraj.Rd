@@ -3,9 +3,11 @@
 \alias{bindltraj}
 \title{Split Trajectories into Several Bursts}
 \description{
+
   The function \code{cutltraj} split the bursts in an object of class
   \code{ltraj} into several "sub-bursts", according to some specified
-  criterion.\cr
+  criterion.
+  
   The function \code{bindltraj} binds the bursts an object of class
   \code{ltraj} with the same attributes \code{"id"} into one unique
   burst.
@@ -26,17 +28,18 @@ bindltraj(ltraj, ...)
   \item{\dots}{additional arguments to be passed to other functions}
 }
 \details{
+ 
   Splitting a trajectory may be of interest in many situations. For
   example, if it is known that two kinds of activities of the monitored
   animals correspond to different properties of, say, the distance
   between successive relocations, it may be of interest to split the
-  trajectory according to the values of these distances.\cr
+  trajectory according to the values of these distances.
 
   The criterion used to cut the trajectory may imply any of the
   parameters describing a trajectory in the object \code{ltraj} (e.g.,
   \code{"dt"}, \code{"dist"}, \code{"dx"}, etc. see the help page of
   \code{as.ltraj}), as well as any variable stored in the attribute
-  \code{"infolocs"} of the object.\cr
+  \code{"infolocs"} of the object.
   
   Two options are available in \code{cutltraj}, depending on the value
   of \code{nextr}. If \code{nextr = FALSE}, any sequence of
@@ -45,7 +48,7 @@ bindltraj(ltraj, ...)
   returns the vector \code{(FALSE, FALSE, FALSE, TRUE, TRUE, TRUE,
     FALSE, FALSE, FALSE)}, then the function \code{cutltraj} creates
   two new bursts of relocations, the first one containing the first 3
-  relocations and the second one the last 3 relocations.\cr
+  relocations and the second one the last 3 relocations.
   
   If \code{nextr = TRUE}, any sequence of successive relocations that
   *do not* match the criterion, *as well as the first relocation that
@@ -61,7 +64,8 @@ bindltraj(ltraj, ...)
   criterion returns the vector \code{(FALSE, FALSE, FALSE, TRUE, TRUE,
     TRUE, FALSE, FALSE, FALSE)}, then the function \code{cutltraj}
   creates two new bursts of relocations, the first one containing the
-  first 4 relocations and the second one the last 3 relocations.\cr
+  first 4 relocations and the second one the last 3 relocations.
+  
 }
 \value{
   An object of class \code{ltraj}.

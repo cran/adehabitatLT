@@ -127,6 +127,7 @@ testNM(NM, count = TRUE)
   \item{\dots}{additionnal arguments to be passed to or from other methods}
 }
 \details{
+
   The null model approach has been considered as a useful approach in
   many fields of ecology to study biological processes.  According to
   Gotelli and Graves (1996), "A null model is a pattern-generating model
@@ -137,7 +138,7 @@ testNM(NM, count = TRUE)
   are allowed to vary stochastically to create new assemblage
   patterns. The randomization is designed to produce a pattern that
   would be expected in the absence of a particular ecological
-  mechanism".\cr
+  mechanism".
 
   This approach can be very useful to test hypotheses related to animal
   movements.  The package adehabitatLT propose several general null
@@ -156,7 +157,7 @@ testNM(NM, count = TRUE)
   trajectory).  Once the null model has been defined, it is then possible
   to perform the randomizations using the function \code{testNM}. We
   give below the details concerning the available null models, as well
-  as the constraint and the treatment functions.\cr
+  as the constraint and the treatment functions.
 
   First, two types of null models can be defined: single (NMs) and
   multiple (NMm) null models.  Consider an object of class
@@ -175,7 +176,7 @@ testNM(NM, count = TRUE)
   between animals).  The only current way to define an object of class
   \code{NMm} is to first define an object of class \code{NMs} and then
   use the function \code{NMs2NMm} to indicate the treatment function
-  that should be applied on the whole set of trajectories.\cr
+  that should be applied on the whole set of trajectories.
 
   The constraint function should be user-defined. It should return a
   logical value indicating whether the constraint is satisfied.  With
@@ -199,7 +200,7 @@ testNM(NM, count = TRUE)
   satisfied at the individual level, and others at the scale of the
   whole set of animals.  If no constraint function is defined by the
   user, a constraint function always returning \code{TRUE} is
-  automatically defined internally.\cr
+  automatically defined internally.
 
   The treatment function can be any function defined by the user, but
   should take two arguments \code{x} and \code{par}, identical to those
@@ -213,25 +214,25 @@ testNM(NM, count = TRUE)
   account.  If no treatment function is defined by the user, a treatment
   function will be defined internally, simply returning the randomized
   trajectory (i.e. a data.frame with three columns for \code{NMs}, and
-  an object of class \code{ltraj} for \code{NMm}).\cr
+  an object of class \code{ltraj} for \code{NMm}).
   
-  We now describe the list of available null models:\cr
+  We now describe the list of available null models:
   
   \code{NMs.CRW}: this model is a purely parametric model. It
   simulates a correlated random walk with specified parameters (see
-  \code{?simm.crw} for a complete description of this model).\cr
+  \code{?simm.crw} for a complete description of this model).
   
   \code{NMs.randomCRW}: this model also simulates a correlated
   random walk, but the distributions of the turning angles and/or
   distances between successive relocations are derived from the
   trajectories passed as arguments.  It is possible to randomize the
   turning angles, the distances between successive relocations, or
-  both (default).\cr 
+  both (default).
   
   \code{NMs.randomShiftRotation}: this model randomly rotates the
   trajectory around its barycentre and randomly shifts it over the study
   area (but does not change its shape).  The function allows for a
-  random rotation, a random shift or both operations (default).\cr
+  random rotation, a random shift or both operations (default).
   
   \code{NMs.randomCs}: this model is similar to the previous one:
   it keeps the shape of the trajectory unchanged.  However, it
@@ -256,7 +257,7 @@ testNM(NM, count = TRUE)
   \code{N} is the number of trajectories in the object of class
   \code{"ltraj"} passed as argument, with each element is a list storing
   the \code{nrep} results of the treatment function applied to each randomized
-  trajectory.\cr
+  trajectory.
 
   For objects of class \code{"NMm"}, a list of \code{nrep} elements,
   each element storing the result of the treatment function applied to
@@ -264,7 +265,12 @@ testNM(NM, count = TRUE)
 }
 \references{
   Gotelli, N. and Graves, G. (1996) \emph{Null models in
-  Ecology}. Smithsonian Institution Press.
+    Ecology}. Smithsonian Institution Press.
+
+  Richard, E., Calenge, C., Said, S., Hamann, J.L. and Gaillard,
+  J.M. (2012) Studying spatial interactions between sympatric
+  populations of large herbivores: a null model
+  approach. \emph{Ecography}, in press.
 }
 \author{ Clement Calenge \email{clement.calenge@oncfs.gouv.fr} }
 \seealso{

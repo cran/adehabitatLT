@@ -34,7 +34,7 @@ sliwinltr(ltraj, fun, step, type = c("locs", "time"),
   relocations.  This burst of relocations should be refered as \code{x}
   in \code{fun}.  For example, to compute the mean of the distance
   between successive relocations, the function \code{fun} is equal to
-  \code{function(x) mean(x$dist)}.\cr
+  \code{function(x) mean(x$dist)}.
 
   Do not forget that some of the descriptive parameters in the object
   \code{ltraj} may contain missing values (see
@@ -43,7 +43,7 @@ sliwinltr(ltraj, fun, step, type = c("locs", "time"),
 }
 \value{
   If \code{type=="locs"}, a list with one component per burst of
-  relocation containing the smoothed values for each relocation.\cr
+  relocation containing the smoothed values for each relocation.
 
   If \code{type=="locs"}, a list with one component per burst of
   relocation.  Each component is a data frame containing the time and

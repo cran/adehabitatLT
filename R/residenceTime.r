@@ -14,7 +14,7 @@ residenceTime <- function(lt, radius, maxt, addinfo=FALSE,
     res <- lapply(1:length(lt), function(i) {
         x <- lt[[i]]
         uu <- x$date
-        vv <- .Call("residtime", x, radius, maxt)
+        vv <- .Call("residtime", x, radius, maxt, PACKAGE="adehabitatLT")
         if (all(is.na(vv)))
             warning(paste("Too large radius for burst", burst(lt)[i],"\n",
                           "The residence time is missing for all the relocations of this burst\n"))

@@ -2232,7 +2232,7 @@ Gotelli (2001) gave a more detailed description of the null model approach:
 Although mostly used in community ecology, this approach was also
 advocated for trajectory data, e.g. in the analysis of habitat
 selection (Martin et al. 2008) and the study of the interactions
-between animals (Richard et al. in prep). This approach can
+between animals (Richard et al. 2012). This approach can
 indeed be very useful to test hypotheses related to animal movements.
 The package adehabitatLT propose several general null models that can
 be used to test biological hypotheses. \\
@@ -2745,7 +2745,7 @@ We give in this section several important remarks:\\
   trajectory should fall within the study area), and for the whole set
   of trajectories in the function \texttt{NMs2NMm} (e.g. at least 80\%
   of the trajectories should be located in a given habitat type, see
-  Richard et al., in prep for an example). The two types of constraint
+  Richard et al., 2012 for an example). The two types of constraint
   function are taken into account when simulating the null model.\\
 
 \item Note that missing relocations are not allowed in null model
@@ -2858,9 +2858,9 @@ underlying the analysis of animal space use.
 \item Pebesma, E. and Bivand, R.S. 2005. Classes and Methods for
   Spatial data in R. R News, 5, 9--13.
 \item Richard, E., Calenge, C., Said, S., Hamann, J.L. and Gaillard,
-  J.M. (in prep.) A null model approach to study the spatial
+  J.M. (2012) A null model approach to study the spatial
   interactions between roe deer (\textit{Capreolus capreolus}) and red
-  deer (\textit{Cervus elaphus}).
+  deer (\textit{Cervus elaphus}). Ecography, in press.
 \item Root, R. and Kareiva, P. 1984. The search for resources by
   cabbage butterflies (Pieris Rapae): Ecological consequences and
   adaptive significance of markovian movements in a patchy

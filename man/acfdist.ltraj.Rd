@@ -30,23 +30,25 @@ acfang.ltraj(x, which = c("absolute", "relative"), nrep = 999, lag = 1,
   \item{ylab}{ a title for the y axis}
 }
 \details{
+
   The function \code{acfdist.ltraj} is used to compute a correlogram for
   linear descriptors and \code{acfang.ltraj} for angular descriptors
-  (see \code{as.ltraj} for a description of these descriptors).\cr
+  (see \code{as.ltraj} for a description of these descriptors).
 
   Statistics used are defined in Dray et al. (in press). They are based
   on squared differences between successive values. For angular
-  descriptors, the statistic is based on the chord distance.\cr
+  descriptors, the statistic is based on the chord distance.
 
   In the case of missing data, the computation of the correlograms is
   restricted to the pairs of successive observed data and only observed
   data are permuted (i.e. the structure of the missing data is kept
-  constant under permutation).\cr
+  constant under permutation).
 
   The grey area represents a 95 \% interval obtained after permutation
   of the data. If the observed data is outside this region, it is
   considered as significant and represetend by a black symbol. Note that
-  no multiple-comparison adjustement is performed. \cr
+  no multiple-comparison adjustement is performed.
+  
 }
 \value{
   A list of matrices. Each matrix corresponds to a 'burst'. The matrix

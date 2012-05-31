@@ -22,10 +22,11 @@ dl(x)
   }
 }
 \details{
+  
   The function \code{ld} concatenates all bursts in an object of class
   \code{ltraj}, adds two columns named \code{id} and \code{burst}, and,
   when it is present, also adds the variables in the \code{infolocs}
-  component.\cr
+  component.
   
   The function \code{dl} creates an object of class \code{ltraj} from a
   \code{data.frame}.  If no column named \code{id} exists, a random ID

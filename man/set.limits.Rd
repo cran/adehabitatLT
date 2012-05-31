@@ -33,7 +33,7 @@ set.limits(ltraj, begin, dur, pattern,
   an animal between 05H00 and 08H00, with a time lag of 5 minutes.  In
   such cases, it is often convenient that the relocations of the bursts
   are paired (e.g. the fifth relocation correspond to the position of
-  the animal at 5H30 for all bursts).\cr
+  the animal at 5H30 for all bursts).
   
   The function \code{set.limits} is intended to ensure that the time of
   beginning, the end, and the duration of the trajectory is the same for
@@ -42,7 +42,7 @@ set.limits(ltraj, begin, dur, pattern,
   metadata in the attribute \code{infolocs}).  If the actual time limits
   of the burst cover a shorter period than those specified, missing values
   are added to the trajectory (and in the corresponding
-  metadata in the attribute \code{infolocs}).\cr
+  metadata in the attribute \code{infolocs}).
 
   Note that "time of beginning" is not a synonym for "date".  That is,
   two trajectories of the same animal, both beginning at 05H00 and

@@ -53,7 +53,7 @@ residenceTime(lt, radius, maxt, addinfo = FALSE,
   then by summing the durations associated with the
   various portions of the path occurring within the circle. The
   graphical examination of the changes with time allow to identify the
-  dates and places where the animal spent most of its time.\cr
+  dates and places where the animal spent most of its time.
 
   A partitionning method can be used to segment the series formed by the
   residence time into homogeneous segments.  Barraquand and Benhamou

@@ -30,6 +30,7 @@ meanfpt(f, graph = TRUE)
     \code{plot}}
 }
 \details{
+
   The first passage time (FPT) is a parameter often used to describe the
   scale at which patterns occur in a trajectory.  For a given scale r,
   it is defined as the time required by the animals to pass through a
@@ -41,13 +42,14 @@ meanfpt(f, graph = TRUE)
   \code{log(FPT) = a * log(radius) + b}. Under the hypothesis of a
   random walk, \code{a} should be equal to 2 (higher for impeded
   diffusion, and lower for facilitated diffusion).  Note however, that
-  the value of a converges to 2 only for large values of radius.\cr
+  the value of a converges to 2 only for large values of radius.
   
   Fauchald & Tveraa (2003) proposed another use of the FPT.  Instead of
   computing the mean of FPT, they propose the use of the variance of the
   log(FPT).  This variance should be high for scales at which patterns
   occur in the trajectory (e.g. area restricted search).  This method is
   often used to determine the scale at which an animal seaches for food.
+
 }
 \value{
   \code{fpt} computes the FPT for each relocation and each radius, and
@@ -57,7 +59,7 @@ meanfpt(f, graph = TRUE)
   of \code{radii} and each row corresponding to a relocation.  An object
   of class \code{fipati} has an attribute named \code{"radii"}
   corresponding to the argument \code{radii} of the function
-  \code{fpt}.\cr
+  \code{fpt}.
 
   \code{meanfpt} and \code{varlogfpt} return a data frame giving
   respectively the mean FPT and the variance of the log(FPT) for each

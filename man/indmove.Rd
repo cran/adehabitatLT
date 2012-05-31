@@ -7,19 +7,19 @@
 \description{
   The function \code{indmove} tests for the independence between
   successive components \code{c(dx, dy)} for each burst in a regular
-  object of class \code{ltraj}.\cr
+  object of class \code{ltraj}.
   
   The function \code{indmove.detail} tests for the independence between
   successive \code{dx} or \code{dy} for each burst in a regular object 
-  of class \code{ltraj}.\cr
+  of class \code{ltraj}.
 
   The function \code{testang.ltraj} tests for the independence between
   successive angles (relative or absolute) for each burst in a regular
-  object of class \code{ltraj}.\cr
+  object of class \code{ltraj}.
   
   The function \code{testdist.ltraj} tests for the independence between
   successive distances between successive relocations for each burst in
-  a regular object of class \code{ltraj}.\cr
+  a regular object of class \code{ltraj}.
 }
 \usage{
 indmove(ltr, nrep = 200, conflim = seq(0.95, 0.5, length=5),
@@ -57,23 +57,23 @@ indmove.detail(x, detail=c("dx","dy"), nrep=999,
 \details{
   The function \code{indmove} randomises the order of the increments
   \code{c(dx, dy)} in a trajectory.  The criteria of the test is the
-  Mean Squared Displacement (\code{R^2_n}) (Root & Kareiva 1984).\cr
+  Mean Squared Displacement (\code{R^2_n}) (Root & Kareiva 1984).
   
   The function \code{testang.ltraj} randomises the order of the angles in a
   trajectory.  The criteria of the test is \code{f^2 = sum_(i=1)^(n-1) 2*(1 -
     cos(angle[i+1] - angle[i]))}.  This measure corresponds to the
   mean squared length of the segment joining two successive angles on
-  the trigonometric circle (see examples for an illustration) \cr
+  the trigonometric circle (see examples for an illustration).
 
   The function \code{testdist.ltraj} randomises the order of the
   distances between successive relocations in a trajectory.  The
   criteria of the test is \code{sum_(i=1)^(n-1) (dist[i+1] -
     dist[i])^2 } (Neuman 1941, Neuman et al. 1941).  The same criteria is
-  used in \code{indmove.detail()}.\cr.
+  used in \code{indmove.detail()}.
 
   Note that these functions require "regular" trajectories,
   i.e. trajectories for which the relocations are separated by a
-  constant time lag.\cr
+  constant time lag.
 
   Finally, note that the functions \code{testang.ltraj} and
   \code{testdist.ltraj} are not affected by the presence of missing
@@ -86,7 +86,7 @@ indmove.detail(x, detail=c("dx","dy"), nrep=999,
   component is a list of two data frames. The data frame \code{Time}
   contains the time points at which R2n is computed for the
   observation (first column) and the simulations (other ones).  The data
-  frame \code{R2n} contains the values for the R2n (same dimensions).\cr
+  frame \code{R2n} contains the values for the R2n (same dimensions).
   
   \code{testang.ltraj()}, \code{testdist.ltraj} and
   \code{indmove.detail} return lists of
@@ -96,15 +96,15 @@ indmove.detail(x, detail=c("dx","dy"), nrep=999,
   Root, R.B. & Kareiva, P.M. (1984) The search for resources by
   cabbage butterflies (Pieris Rapae): Ecological consequences and
   adaptive significance of markovian movements in a patchy
-  environment. \emph{Ecology}, \bold{65}: 147--165.\cr 
+  environment. \emph{Ecology}, \bold{65}: 147--165.
   
   Neumann, J.V., Kent, R.H., Bellinson, H.R. & Hart, B.I. (1941) The mean
   square successive difference. \emph{Annals of Mathematical
-    Statistics}, \bold{12}: 153--162\cr
+    Statistics}, \bold{12}: 153--162.
   
   Neumann, J.V. (1941) Distribution of the ration of the mean square
   successive difference to the variance. \emph{The Annals of
-    Mathematical Statistics}, \bold{12}: 367--395 
+    Mathematical Statistics}, \bold{12}: 367--395.
 }
 \author{Clement Calenge \email{clement.calenge@oncfs.gouv.fr}\cr
   Stephane Dray \email{dray@biomserv.univ-lyon1.fr}
