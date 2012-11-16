@@ -6,13 +6,17 @@
   descriptive parameters in objects of class \code{ltraj}
 }
 \usage{
-plotltr(x, which = "dist", ...)
+plotltr(x, which = "dist", pch = 16, cex = 0.7, addlines = TRUE, ...)
 }
 \arguments{
   \item{x}{An object of class \code{ltraj}}
   \item{which}{a character string giving any syntactically correct R
     expression implying the descriptive elements in \code{x} or the
     variables in the optional attribute \code{infolocs}.}
+  \item{pch}{the type of points on the plot (see \code{help(par)}).}
+  \item{cex}{the size of points on the plot (see \code{help(par)}).}
+  \item{addlines}{logical.  Indicates whether lines should be added to
+    the plot.}
   \item{\dots}{additional parameters to be passed to the generic
     function \code{plot}}
 }
