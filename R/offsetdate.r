@@ -12,6 +12,7 @@ offsetdate <- function(ltraj, offset, units=c("sec", "min", "hour", "day"))
         date <- as.numeric(x$date)
         date <- date - offset
         class(date) <- c("POSIXct","POSIXt")
+        attr(date, "tzone") <- attr(x$date, "tzone")
         x$date <- date
         return(x)
     })

@@ -1,7 +1,6 @@
-6e183e0ee9d1a61d40f0f4f061fb3ce8 *DESCRIPTION
+86818b77a6a8b1988774953262c1551a *DESCRIPTION
 381630e2235a7a517016fd5bba9935d6 *NAMESPACE
 4f8be5a5712dce839112140493d49ec6 *R/acfdistang.R
-14b8232ec33b076b670f2ad3eec788a8 *R/altr.r
 d770242e5821826ab49e36cd19d6e622 *R/as.ltraj.r
 99da321e755c0caa4792cdca992a07c4 *R/burst.r
 9e55765acc18113d281069462414a866 *R/corrXY.r
@@ -22,7 +21,7 @@ a36c9346823c1661e3873204ca0d948a *R/meanfpt.r
 e10bbc5a2602ae1581e034e8477d8d5a *R/mindistkeep.r
 47713e5246b0b6bdea7b3cbd92948812 *R/modpartltraj.r
 1346bdd4a286091b262ae1a3275595c0 *R/na.omit.ltraj.r
-b165fdc48cdfced59dbad5a451492c64 *R/offsetdate.r
+d86fc1be7d428ce9359320a0182657be *R/offsetdate.r
 9250a4eef96ffbb91ccacab0c313b506 *R/pchi.r
 0b53ab33a539a67eb3b0ece7e55d3eec *R/plot.fipati.r
 2571f3c1f310e47822deedf0435b225a *R/plot.ltraj.r
@@ -36,7 +35,7 @@ e3598db0944c77b584a9db1f43413532 *R/qqchi.ltraj.r
 0e2dc06fe00021f0465c39cfeec6a05f *R/rasterize.r
 5e79673c4e8309d554434cc3982e9155 *R/rchi.r
 6e2f8ff742761f79fe76fb289880ee58 *R/rec.r
-1f1997c8f6d4a0dcc89aa6978f3021e0 *R/redisltraj.r
+4983bcb80de49b5764c5d23ff678c7b7 *R/redisltraj.r
 c4f5f662633d4bb207f4f854ccd89b8d *R/residenceTime.r
 3fbbc55f51a1f06651d0089a7361fc20 *R/runsNAltraj.r
 fe75278e924423b5caebaed3390f8e4d *R/set.limits.r
@@ -54,7 +53,7 @@ d1cf464256850c8cc4020c0469f6c91e *R/summaryNAltraj.r
 02711e8596795db151bd3b89e5ae5a84 *R/testNM.r
 7940653da8ca6397eec6389613aeef61 *R/testsSD.r
 3f289e01e72a43345dfa4328fe8be31b *R/traj2df.r
-730d9dae8c7f5627f8fa3ad8039ced40 *R/trajdyn.r
+40c4ac7770f27f4b6d20131107276f0d *R/trajdyn.r
 a8f5065b3a4a96798d25d80d635217a3 *R/typeII2typeI.r
 04e9bd6c7759544754b5f4be9508217b *R/varlogfpt.r
 01e550d53b24f8dfaabdcd95ab22a329 *R/wawotest.default.r
@@ -77,7 +76,7 @@ a37f29baa1e7e58ce7a39b05189e9db1 *data/rupicabau.rda
 72a0257812b78f8d7432dfd712a837d4 *data/whale.rda
 54e83d379e7576b9d749749e6e6b89e7 *inst/CITATION
 93270459d19317ef7ebc5fb6ed8a2695 *inst/doc/adehabitatLT.Rnw
-58e30b9db1b71e6fe7e02fb8b1bf46b7 *inst/doc/adehabitatLT.pdf
+1b722b055519055de70e0b7a27b670e9 *inst/doc/adehabitatLT.pdf
 817cbe20fd57d176594c96a49ee05827 *inst/doc/sim.Rdata
 9db24bd56a096ee37f0a9fcc0b65f7ea *inst/doc/sim2.Rdata
 b708a00bf03cbf6fa60aae2d2f635fd1 *inst/doc/sim3.Rdata
@@ -86,7 +85,6 @@ f2bb39cebb2eadf089f3bb9031d65b2d *man/Chi.Rd
 48c88d37ee879b68a72970fa409ce281 *man/Extract.ltraj.Rd
 8985a631d11309dd1995a66a8f023191 *man/acfdist.ltraj.Rd
 1943fbd4f7bb921609ec94c402c8664e *man/albatross.Rd
-ea891447f0d74171caa9a9402f86b725 *man/altr.Rd
 05ddf506a10cc81339ec6f67049e71af *man/as.ltraj.Rd
 2c464aa77dbd388f4df65b2bdf96027f *man/bear.Rd
 ae7b587112236746e9950538bf346527 *man/buffalo.Rd

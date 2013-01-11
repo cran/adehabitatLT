@@ -46,6 +46,8 @@ redisltraj <- function (l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
             y <- toto[[5]][1:neff]
             dat <- toto[[8]][1:neff]
             class(dat) <- c("POSIXt", "POSIXct")
+            attr(dat, "tzone") <- attr(l[[1]]$date, "tzone")
+
             if (addbit) {
                 x <- c(x, l[[1]]$x[length(l[[1]]$x)])
                 y <- c(y, l[[1]]$y[length(l[[1]]$y)])
@@ -76,6 +78,7 @@ redisltraj <- function (l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
             df <- ii[ii[,3]>0,]
             da <- df[,3]
             class(da) <- c("POSIXct","POSIXt")
+            attr(da, "tzone") <- attr(oo[,3], "tzone")
             as.ltraj(df[,1:2], da, id=id(l)[i], burst=burst(l)[i], typeII=attr(l, "typeII"))
         }))
         return(nl)
