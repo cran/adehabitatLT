@@ -23,17 +23,22 @@ as.ltraj <- function(xy, date=NULL, id, burst=id, typeII = TRUE,
 
     ## length of id
     if (length(id)==1)
-        id <- rep(as.character(id), nrow(xy))
+        id <- factor(rep(as.character(id), nrow(xy)))
     if (length(id)!=nrow(xy))
         stop("id should be of the same length as xy, or of length 1")
-    id <- as.character(id)
+
+    ## checks that all levels are present in the data:
+    if (min(table(id))==0)
+        stop("some id's are not present in the data")
 
     ## length of burst
     if (length(burst)==1)
-        burst <- rep(as.character(burst), nrow(xy))
+        burst <- factor(rep(as.character(burst), nrow(xy)))
     if (length(burst)!=nrow(xy))
         stop("burst should be of the same length as xy, or of length 1")
-    burst <- as.character(burst)
+    ## checks that all levels are present in the data:
+    if (min(table(burst))==0)
+        stop("some bursts are not present in the data")
 
     ## Verification that there is only one burst per id
     id1 <- factor(id)
@@ -60,6 +65,14 @@ as.ltraj <- function(xy, date=NULL, id, burst=id, typeII = TRUE,
     if (rr)
         stop("non unique dates for a given burst")
 
+    ## Unique dates for a given id?
+    x <- xy[,1]
+    y <- xy[,2]
+    resbb <- split(data.frame(x=x,y=y, date=date), id1)
+    rr <- any(unlist(lapply(resbb,
+                            function(x) (length(unique(x$date))!=length(x$date)))))
+    if (rr)
+        stop("non unique dates for a given id")
 
 
     ## Descriptive parameters

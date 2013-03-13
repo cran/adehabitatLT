@@ -52,9 +52,7 @@ plot(tr1)
 points(tr1[tr1[[1]]==3,], col="red")
 
 ## So, if we want to calculate the mean elevation for each step:
-ov <- overlay(puechabonsp$map, tr1)
-mel <- puechabonsp$map[ov,]
-image(mel)
+mel <- over(tr1, puechabonsp$map)
 mo <- tapply(mel[[1]], tr1[[1]], mean)
 plot(mo, ty="l")
 
@@ -70,11 +68,8 @@ val <- lapply(1:length(ii), function(i) {
     ## get the rasterized trajectory
     tr <- ii[[i]]
 
-    ## overlay with the map
-    ov <- overlay(puechabonsp$map, tr)
-
     ## get the pixels of the map
-    mel <- puechabonsp$map[ov,]
+    mel <- over(tr, puechabonsp$map)
 
     ## calculate the mean elevation
     mo <- tapply(mel[[1]], tr[[1]], mean)

@@ -341,10 +341,10 @@ consfun <- function(x, par)
    ## first convert x to the class SpatialPointsDataFrame
    coordinates(x) <- x[,1:2]
 
-   ## then use the function overlay from the package sp
+   ## then use the function over from the package sp
    ## to check whether all points in x are located inside
    ## the study area
-   ov <- overlay(map, x)
+   ov <- over(x, geometry(map))
    return(all(!is.na(ov)))  
 }
 
