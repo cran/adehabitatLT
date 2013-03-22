@@ -5,6 +5,8 @@ rasterize.ltraj <- function(ltr, map)
     if (!inherits(map, "SpatialPixels"))
         stop("map should inherit the class SpatialPixels")
     pa <- gridparameters(map)
+    pfs <- proj4string(map)
+
     xll <- pa[1,1]
     yll <- pa[2,1]
     cs <- pa[1,2]
@@ -15,6 +17,8 @@ rasterize.ltraj <- function(ltr, map)
         res <- as.data.frame(res)
         names(res) <- c("x","y","step")
         coordinates(res) <- c("x","y")
+        if (!is.na(pfs))
+            proj4string(res) <- CRS(pfs)
         return(res)
     })
 }
