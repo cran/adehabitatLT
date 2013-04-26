@@ -78,7 +78,7 @@ residenceTime(lt, radius, maxt, addinfo = FALSE,
   on the residence time.
 }
 \examples{
-
+\dontrun{
 data(albatross)
 ltr <- albatross[1]
 
@@ -168,7 +168,7 @@ chooseseg(ii)
 ## show the partition:
 plot(pa, perani = FALSE)
 
-
+}
 }
 \keyword{chron}
 \keyword{ts}

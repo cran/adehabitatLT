@@ -28,7 +28,7 @@ sd2df(ltraj, what)
 \seealso{\code{\link{set.limits}} for additional information about
   "sd" regular trajectories }
 \examples{
-
+\dontrun{
 ## Takes the example from the help page of cutltraj (bear):
 data(bear)
 
@@ -73,6 +73,6 @@ lines(seq(0, 23.5, length = 47),
       meandi-sedi, col="grey")
 
 
-
+}
 }
 \keyword{programming}

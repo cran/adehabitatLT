@@ -53,6 +53,7 @@ sliwinltr(ltraj, fun, step, type = c("locs", "time"),
 \seealso{\code{\link{ltraj}} for additional information about objects
       of class \code{ltraj}}
 \examples{
+\dontrun{
 data(capreotf)
 
 ## computes the average speed of the roe deer in a moving window of width
@@ -63,6 +64,6 @@ toto <- sliwinltr(capreotf, function(x) mean(x$dist/x$dt, na.rm = TRUE),
 ## zoom before the peak
 head(toto[[1]])
 plot(toto[[1]][1:538,], ty="l")
-
+}
 }
 \keyword{hplot}

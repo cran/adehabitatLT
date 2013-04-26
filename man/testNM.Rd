@@ -278,6 +278,7 @@ testNM(NM, count = TRUE)
   class \code{"ltraj"}
 }
 \examples{
+\dontrun{
 ########################################
 ##
 ## example using NMs.randomShiftRotation
@@ -382,7 +383,6 @@ mo <- NMs.randomCRW(na.omit(anim1), rangles=TRUE, rdist=TRUE,
 par(mfrow = c(3,3))
 tmp <- testNM(mo)
 
-\dontrun{
 ## Now, try a different treatment function: e.g. measure
 ## the distance between the first and last relocation,
 ## to test whether the animal is performing a return trip
@@ -472,7 +472,6 @@ obs <- myfunm(na.omit(puechcirc))
 plot(rt)
 
 ## The test is no longer significant
-}
 
 
 ########################################
@@ -516,7 +515,7 @@ mod <- NMs.randomCs(na.omit(anim1), newCs=cs, newDistances=dist,
 ## apply the null model
 par(mfrow = c(3,3))
 tmp <- testNM(mod)
-
+}
 
 
 }

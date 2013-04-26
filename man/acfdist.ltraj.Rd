@@ -72,10 +72,12 @@ acfang.ltraj(x, which = c("absolute", "relative"), nrep = 999, lag = 1,
   \code{ltraj},  \code{\link{wawotest}} for a simple test of the
   autocorrelation of the descriptive parameters on the trajectory. }
 \examples{
+\dontrun{
 data(puechcirc)
 puechcirc
 acfang.ltraj(puechcirc, lag=5)
 acfdist.ltraj(puechcirc, lag=5)
+}
 }
 \keyword{ htest }
 

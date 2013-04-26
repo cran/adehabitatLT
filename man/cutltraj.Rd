@@ -77,7 +77,7 @@ descriptive parameters that can be used in
 \code{cutltraj}).  \code{\link{is.sd}} (especially the examples of this
 help page) for other examples of use of this function}
 \examples{
-
+\dontrun{
 #######################################################
 ##
 ## GPS monitoring of one bear
@@ -111,6 +111,6 @@ bea2 <- bea1[-c(1,length(bea1))]
 
 bea3 <- bindltraj(bea2)
 bea3
-
+}
 }
 \keyword{programming}
