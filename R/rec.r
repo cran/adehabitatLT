@@ -11,11 +11,11 @@ rec <- function(x, slsp=c("remove","missing"))
     if (!is.null(lif)) {
         for (i in 1:length(x)) {
             if (!all(row.names(x[[i]])%in%row.names(lif[[i]]))) {
-                x[[i]] <- x[[i]][row.names(x[[i]])%in%row.names(lif[[i]]),]
+                x[[i]] <- x[[i]][row.names(x[[i]])%in%row.names(lif[[i]]),,drop=FALSE]
                 attr(x[[i]],"infolocs") <- lif[[i]]
             }
             if (!all(row.names(lif[[i]])%in%row.names(x[[i]]))) {
-                lif[[i]] <- lif[[i]][row.names(lif[[i]])%in%row.names(x[[i]]),]
+                lif[[i]] <- lif[[i]][row.names(lif[[i]])%in%row.names(x[[i]]),,drop=FALSE]
                 attr(x[[i]],"infolocs") <- lif[[i]]
             }
         }

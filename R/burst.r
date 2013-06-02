@@ -57,6 +57,8 @@ id <- function(ltraj)
         if (nrow(df)!=nrow(ltraj[[i]]))
             stop(paste("The burst", i,
                        "does not have the same number of elements in ltraj and value"))
+        if (!all(row.names(df)==row.names(ltraj[[i]])))
+            stop("The infolocs component should have the same row.names as the ltraj object")
         attr(ltraj[[i]], "infolocs") <- df
     }
     return(ltraj)

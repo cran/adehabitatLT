@@ -2106,7 +2106,12 @@ val <- lapply(1:length(ii), function(i) {
     ## names(mo) contains the step number (i.e. relocation
     ## number +1)
     elev[as.numeric(names(mo))+1] <- mo
-    return(data.frame(elevation = elev))
+    df <- data.frame(elevation = elev)
+
+    ## same row.names as in the ltraj
+    row.names(df) <- row.names(puechcirc[[i]])
+
+    return(df)
 })
 @
 

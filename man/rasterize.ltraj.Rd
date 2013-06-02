@@ -81,7 +81,13 @@ val <- lapply(1:length(ii), function(i) {
     ## names(mo) contains the step number (i.e. relocation
     ## number +1)
     elev[as.numeric(names(mo))+1] <- mo
-    return(data.frame(elevation = elev))
+
+    ## Checks that the row.names are the same for
+    ## the result and the ltraj component
+    df <- data.frame(elevation = elev)
+    row.names(df) <- row.names(puechcirc[[i]])
+
+    return(df)
 })
 
 ## define the infolocs component

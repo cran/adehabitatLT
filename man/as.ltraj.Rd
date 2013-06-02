@@ -158,7 +158,10 @@ rec(x, slsp = c("remove", "missing"))
   example that the function \code{c.ltraj} cannot be used to combine an
   object where only variable "A" is stored as metadata and an object
   where only variable "B" is stored as metadata.  The function
-  \code{removeinfo} can be used to remove this attribute.
+  \code{removeinfo} can be used to remove this attribute.  Note also
+  that the data.frames in the list infolocs should have the same
+  row.names as the corresponding elements in the object of class
+  \code{"ltraj"}. 
 }
 \value{
   \code{summary.ltraj} returns a data frame.\cr
