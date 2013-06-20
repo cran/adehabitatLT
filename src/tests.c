@@ -4342,7 +4342,7 @@ SEXP tr_randomRotation(SEXP xyt, SEXP par1, SEXP par2, SEXP parcon,
 	/* checks whether the constraints are satisfied */
 	defineVar(install("x"), xyso, env);
 	defineVar(install("par"), parcon, env);
-
+	
 	PROTECT(resucont = coerceVector(eval(constraint, env), INTSXP));
 	ok = INTEGER(resucont)[0];
 	if (ok!=1) {

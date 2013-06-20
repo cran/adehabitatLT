@@ -14,7 +14,7 @@ gdltraj <- function(x, min, max,
         x <- lapply(x, function(y) {
             infol <- attr(y, "infolocs")
             if (!is.null(infol))
-                infol <- infol[(y$date>min)&(y$date<max),]
+                infol <- infol[(y$date>min)&(y$date<max),,drop=FALSE]
             y <- y[(y$date>min)&(y$date<max),]
             if (!is.null(infol))
                 attr(y, "infolocs") <- infol
@@ -25,7 +25,7 @@ gdltraj <- function(x, min, max,
             da <- as.POSIXlt(y$date)[[type]]
             infol <- attr(y, "infolocs")
             if (!is.null(infol))
-                infol <- infol[(da>=min)&(da<max),]
+                infol <- infol[(da>=min)&(da<max),,drop=FALSE]
             y <- y[(da>=min)&(da<max),]
             if (!is.null(infol))
                 attr(y, "infolocs") <- infol
