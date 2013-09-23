@@ -1,6 +1,6 @@
 useDynLib(adehabitatLT)
 
-import(adehabitatMA)
+import(adehabitatMA,ade4,sp,methods,CircStats)
 
 exportPattern("^[^\\.]")
 

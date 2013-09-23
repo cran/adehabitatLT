@@ -1,10 +1,10 @@
 \name{ltraj2spdf}
 \alias{ltraj2spdf}
 \alias{ltraj2sldf}
-\title{ Conversion of the class "ltraj" from/to the package "sp" }
+\title{ Conversion of the class "ltraj" to the package "sp" }
 \description{
   These functions convert the class "ltraj" available in adehabitatLT toward
-  classes available in the package \code{sp} and conversely.
+  classes available in the package \code{sp}.
 
   \code{ltraj2spdf} converts an object of class \code{ltraj} into an
   object of class \code{SpatialPointsDataFrame}.

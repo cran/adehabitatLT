@@ -1,5 +1,5 @@
 "plotltr" <-
-function(x, which="dist", pch = 16, cex = 0.7, addlines = TRUE, ...)
+function(x, which="dist", pch = 16, cex = 0.7, addlines = TRUE, addpoints = TRUE, ...)
   {
     if (!inherits(x,"ltraj"))
         stop("x should be of class ltraj")
@@ -11,9 +11,11 @@ function(x, which="dist", pch = 16, cex = 0.7, addlines = TRUE, ...)
         ex<- parse(text=which)
         coin <- eval(ex, envir=i)
         plot(i$date, coin, main=attr(i,"burst"), xlab="Time",
-             ylab=which, pch=pch, cex=cex,...)
+             ylab=which, type="n", ...)
         if (addlines)
             lines(i$date, coin)
+        if (addpoints)
+            points(i$date, coin, pch=pch, cex=cex)
     })
     invisible()
   }

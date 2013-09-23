@@ -1,5 +1,5 @@
-ab773a2ee29875506c1b38524b66ae33 *DESCRIPTION
-381630e2235a7a517016fd5bba9935d6 *NAMESPACE
+365d0c21ddd5d6b529b4a48307a976aa *DESCRIPTION
+7fd125b3a1f74bb80bbabfb4c4fe1d0e *NAMESPACE
 4f8be5a5712dce839112140493d49ec6 *R/acfdistang.R
 b6e45c5b07e1bf6d645dec595a95e2d8 *R/as.ltraj.r
 99da321e755c0caa4792cdca992a07c4 *R/burst.r
@@ -26,7 +26,7 @@ d86fc1be7d428ce9359320a0182657be *R/offsetdate.r
 0b53ab33a539a67eb3b0ece7e55d3eec *R/plot.fipati.r
 2571f3c1f310e47822deedf0435b225a *R/plot.ltraj.r
 30dee4a02e18003cdd1ae64895c4a707 *R/plotNAltraj.r
-dfc58c4bd3fc4c2e580bab6c8ec89d4c *R/plotltr.r
+ffcd0f93c039d8464d10780f4649f85e *R/plotltr.r
 04eaf04abe3852b6fe5f193d1453fbde *R/qchi.r
 e9c9f6567df034ad631ed1c2a4092f85 *R/qqchi.default.r
 e3598db0944c77b584a9db1f43413532 *R/qqchi.ltraj.r
@@ -43,7 +43,7 @@ f57e679503c404a464b99fd3159305df *R/setNA.r
 f267e28cd9ddc95a510d46138289a8b1 *R/sett0.r
 156068695dabc826961b42e280f038a9 *R/simm.bb.r
 5f12f592afba2c8cd989e69cf443dc3d *R/simm.brown.r
-49d26fdaa6bd49cb6ad63c8718fb4bef *R/simm.crw.r
+802e4c1b1a3451f5b9b069f3ba71b8de *R/simm.crw.r
 5cfb3a5f774cd97834a346e6b4d018c2 *R/simm.levy.r
 c6cd404e95bf7d77a8459279c2d9ef4e *R/simm.mba.r
 e449b30ef162ad4e16a41cae63abd1e6 *R/simm.mou.r
@@ -60,6 +60,7 @@ a8f5065b3a4a96798d25d80d635217a3 *R/typeII2typeI.r
 b721f0ab05d68c922609ba50bc40d04c *R/wawotest.ltraj.r
 059351fd0b4eb4dd33d0f6e33ebe0196 *R/wawotest.r
 be52a7ba8bfbd79c647abdfa71b3d0a1 *R/which.ltraj.r
+041b4ba3b93bd9fa680f48fba093d439 *build/vignette.rds
 38e71beb7803734ab837248f1c0103d7 *data/albatross.rda
 f2ddd1b3bc960ae210f6156410bf340e *data/bear.rda
 74c0d2e18969d97f01634f1acd7128df *data/buffalo.rda
@@ -78,10 +79,6 @@ a37f29baa1e7e58ce7a39b05189e9db1 *data/rupicabau.rda
 340e4eb1e28718ac0ff113ac8eaeb60b *inst/doc/adehabitatLT.R
 93270459d19317ef7ebc5fb6ed8a2695 *inst/doc/adehabitatLT.Rnw
 c1ee651578c4795146fb17851295ecf8 *inst/doc/adehabitatLT.pdf
-817cbe20fd57d176594c96a49ee05827 *inst/doc/sim.Rdata
-9db24bd56a096ee37f0a9fcc0b65f7ea *inst/doc/sim2.Rdata
-b708a00bf03cbf6fa60aae2d2f635fd1 *inst/doc/sim3.Rdata
-d2813134ea187f71b5e8b2fc63e1086b *inst/doc/trajdyn.png
 f2bb39cebb2eadf089f3bb9031d65b2d *man/Chi.Rd
 48c88d37ee879b68a72970fa409ce281 *man/Extract.ltraj.Rd
 8985a631d11309dd1995a66a8f023191 *man/acfdist.ltraj.Rd
@@ -106,14 +103,14 @@ deaacdf42f573aa39be6b6066201e26e *man/indmove.Rd
 6cc528f17bc5cda0cd931e462aaafa64 *man/is.sd.Rd
 f2c1903194cdafbe91682f557d69da15 *man/lavielle.Rd
 29be793e84a3858c564a45df0d06e41b *man/ld.Rd
-8d7a342b7ac46f5fa9db93bf75d0aaac *man/ltraj2sldf.Rd
+57a72c43ed992738e5181668fa0dc97a *man/ltraj2sldf.Rd
 32b4ac0672bf744f73eed0b8b58bace3 *man/mindistkeep.Rd
 7f2d49871e22020889ddc562e867cab9 *man/modpartltraj.Rd
 4b6498da08f095755e5758c0698c213a *man/mouflon.Rd
 918441d6a380d1a90451b556c31104a0 *man/na.omit.ltraj.Rd
 3d56da6b9e38649a1afd853f99f218e5 *man/offsetdate.Rd
 e5b490ed43ce3b42fcd31293d4fade47 *man/plot.ltraj.Rd
-f3a553bd8a92d05721efdb7644e8accb *man/plotltr.Rd
+5d33339fc6dff1965d81f7d2dc40d384 *man/plotltr.Rd
 cbae53cd57f15a4cd07f063a1bedd9f2 *man/porpoise.Rd
 d29ee80ed28e6396fe30a508ddc51113 *man/puechcirc.Rd
 f4e8c6f6a076f288c3522c6c0c9050a4 *man/qqchi.Rd
@@ -141,3 +138,8 @@ d4dd322da5d0bcbad632f0559b13014f *man/wawotest.Rd
 5b676cfe8529035bc0fb5f1cfe10a047 *man/whale.Rd
 e7b409d1694d2c2d679ba86cda9eb0bc *man/which.ltraj.Rd
 351f49ca70df4c32f32f89264ff20d45 *src/tests.c
+93270459d19317ef7ebc5fb6ed8a2695 *vignettes/adehabitatLT.Rnw
+817cbe20fd57d176594c96a49ee05827 *vignettes/sim.Rdata
+9db24bd56a096ee37f0a9fcc0b65f7ea *vignettes/sim2.Rdata
+b708a00bf03cbf6fa60aae2d2f635fd1 *vignettes/sim3.Rdata
+d2813134ea187f71b5e8b2fc63e1086b *vignettes/trajdyn.png
