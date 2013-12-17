@@ -115,7 +115,9 @@ void acfangl (double *sim, double *ang, int *nang, double *angper,
 double alea (void)
 {
     double w;
-    w = ((double) rand())/ (double)RAND_MAX;
+    GetRNGstate();
+    w = unif_rand();
+    PutRNGstate();
     return (w);
 }
 
@@ -463,7 +465,7 @@ void getpermutation (int *numero, int repet)
  * two calls returns different results (seed=clock+repet)
  ------------------------*/
 {
-    int i, n, seed;
+    int i, n;
     int *alea;
     
     n=numero[0];
@@ -479,11 +481,10 @@ void getpermutation (int *numero, int repet)
     /*-------------
      * affects random numbers in alea
      ----------------*/
-    seed = clock();
-    seed = seed + repet;
-    srand(seed);
     for (i=1;i<=n;i++) {
-	alea[i]=rand();
+	GetRNGstate();
+	alea[i] = unif_rand();
+	PutRNGstate();
     }
     
     trirapideint (alea , numero, 1, n);
@@ -1330,8 +1331,8 @@ void fptt(double *x, double *y, double *t, int pos, double radius, double *fptto
     
     /* computes the linear approximation */
     if (naar > 0) {
-	dt = abs(t[pos] - t[pos2]);
-	dt2 = abs(t[pos] - t[(pos2+1)]);
+	dt = fabs(t[pos] - t[pos2]);
+	dt2 = fabs(t[pos] - t[(pos2+1)]);
 	dtmp(x[(pos2+1)], x[pos], y[(pos2+1)], y[pos], &di2);
 	fptar = dt2 + ( (dt - dt2) * (radius - di2) / (di - di2) );
     }
@@ -1354,8 +1355,8 @@ void fptt(double *x, double *y, double *t, int pos, double radius, double *fptto
     
     /* Computes linear approximation */
     if (naav > 0) {
-	dt = abs(t[pos2] - t[pos]);
-	dt2 = abs(t[(pos2-1)] - t[pos]);
+	dt = fabs(t[pos2] - t[pos]);
+	dt2 = fabs(t[(pos2-1)] - t[pos]);
 	dtmp(x[(pos2-1)], x[pos], y[(pos2-1)], y[pos], &di2);
 	fptav = dt2 + ( (dt - dt2) * (radius - di2) / (di - di2) );
     }
@@ -1738,7 +1739,7 @@ void discretraj(double *x, double *y, double *dat, double *xn,
     
     if (fini == 0) {
 	/* Does the difference between x[p] and x[m] = 0? */
-	if ((abs(x[p] - x[m]) > 0.000000000001)) {
+	if ((fabs(x[p] - x[m]) > 0.000000000001)) {
 	    /* Computes the slope between m and p */
 	    pente = (y[p] - y[m]) / (x[p] - x[m]); /* when diff(x) == 0 ? */
 	    /* The intercept */
