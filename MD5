@@ -1,5 +1,5 @@
-b574cd890b20db88f3c51ab76ed3c8cc *DESCRIPTION
-229d585ec8d04c3c5a75fb5f5eee658e *NAMESPACE
+6eb471a7193c30b130844864506a2fe5 *DESCRIPTION
+7a4dbd506938ebabb1b9fbd0bbf5b6d3 *NAMESPACE
 4f8be5a5712dce839112140493d49ec6 *R/acfdistang.R
 ed77299a8ff1184a14a10231c33b1d4c *R/as.ltraj.r
 f3dc4d437cac0c2e384a10241cdf2da3 *R/burst.r
@@ -78,7 +78,7 @@ a37f29baa1e7e58ce7a39b05189e9db1 *data/rupicabau.rda
 54e83d379e7576b9d749749e6e6b89e7 *inst/CITATION
 be1cc12be96213335eb0b5125a21221a *inst/doc/adehabitatLT.R
 cd83539f14dd2056767ff7adbd07428c *inst/doc/adehabitatLT.Rnw
-49bce5e92a43d7cbe72c28f60cbe2609 *inst/doc/adehabitatLT.pdf
+6d2eaffe2647b807a71c34d45465b5f9 *inst/doc/adehabitatLT.pdf
 f2bb39cebb2eadf089f3bb9031d65b2d *man/Chi.Rd
 48c88d37ee879b68a72970fa409ce281 *man/Extract.ltraj.Rd
 64d9d7fbb6f59b78e645dd4391e9c9c9 *man/acfdist.ltraj.Rd
@@ -137,7 +137,7 @@ f60b4532d48f317fae03d05ccbe5ffc0 *man/trajdyn.Rd
 d4dd322da5d0bcbad632f0559b13014f *man/wawotest.Rd
 5b676cfe8529035bc0fb5f1cfe10a047 *man/whale.Rd
 e7b409d1694d2c2d679ba86cda9eb0bc *man/which.ltraj.Rd
-32ff3c27ccaec8451cbbe7fdb5c4c417 *src/tests.c
+87d9f5c9acae7d236f8c25277b687d77 *src/tests.c
 cd83539f14dd2056767ff7adbd07428c *vignettes/adehabitatLT.Rnw
 817cbe20fd57d176594c96a49ee05827 *vignettes/sim.Rdata
 9db24bd56a096ee37f0a9fcc0b65f7ea *vignettes/sim2.Rdata
