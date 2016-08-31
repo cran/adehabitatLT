@@ -55,6 +55,11 @@ set.limits <- function(ltraj, begin, dur, pattern,
         stop("ltraj should be regular")
     units <- match.arg(units)
     dur <- .convtime(dur, units)
+    p4s <- .checkp4(ltraj)
+
+    tz1 <- .checktz(ltraj)
+    if (tz!=tz1)
+        stop("inconsistent time zones; please check the argument tz")
 
     res <- strsplit(pattern,"")[[1]]
     sep <- res[c(1,diff(as.numeric(res=="%")))==0][1]
@@ -110,5 +115,6 @@ set.limits <- function(ltraj, begin, dur, pattern,
     attr(res, "typeII") <- TRUE
     attr(res, "regular") <- TRUE
     res <- rec(res,...)
+    attr(rec,"proj4string") <- p4s
     return(res)
 }

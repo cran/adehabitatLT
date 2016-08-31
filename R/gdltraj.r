@@ -8,9 +8,15 @@ gdltraj <- function(x, min, max,
     if (!attr(x, "typeII"))
         stop("x should be of type II (time recorded)")
     type <- match.arg(type)
-
+    p4s <- .checkp4(x)
     ## gets the traj within the boundaries
     if (type=="POSIXct") {
+        tz1 <- .checktz(x)
+        tz2 <- .ctzda(min)
+        tz3 <- .ctzda(max)
+        tz <- c(tz2,tz3)
+        if (any(tz!=tz1))
+            stop("non consistent time zones")
         x <- lapply(x, function(y) {
             infol <- attr(y, "infolocs")
             if (!is.null(infol))
@@ -41,5 +47,6 @@ gdltraj <- function(x, min, max,
     attr(x, "typeII") <-  TRUE
     attr(x, "regular") <-  is.regular(x)
     x <- rec(x)
+    attr(x,"proj4string") <- p4s
     return(x)
   }

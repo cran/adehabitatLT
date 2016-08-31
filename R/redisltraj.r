@@ -4,7 +4,7 @@ redisltraj <- function (l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
     if (!inherits(l, "ltraj"))
         stop("l should be of class 'ltraj'")
     type <- match.arg(type)
-
+    p4s <- .checkp4(l)
     if (type=="space") {
         if (is.null(burst)) {
             burst <- unlist(lapply(l, function(x) attr(x, "burst")))
@@ -45,7 +45,7 @@ redisltraj <- function (l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
             x <- toto[[4]][1:neff]
             y <- toto[[5]][1:neff]
             dat <- toto[[8]][1:neff]
-            class(dat) <- c("POSIXt", "POSIXct")
+            class(dat) <- c("POSIXct", "POSIXt")
             attr(dat, "tzone") <- attr(l[[1]]$date, "tzone")
 
             if (addbit) {
@@ -57,19 +57,21 @@ redisltraj <- function (l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
             if (!attr(ml, "typeII")) {
                 nl <- as.ltraj(data.frame(x, y), id = attr(l[[1]],
                                                  "id"), burst = paste(attr(l[[1]], "burst"), ".R",
-                                                        u, sep = ""), typeII = FALSE)
+                                                        u, sep = ""), typeII = FALSE, proj4string=p4s)
             }
             else {
                 nl <- as.ltraj(data.frame(x, y), id = attr(l[[1]],
                                                  "id"), date = dat, burst = paste(attr(l[[1]],
-                                                                    "burst"), ".R", u, sep = ""))
+                                                                    "burst"), ".R", u, sep = ""),
+                               proj4string=p4s)
             }
-            nl[[1]]$rel.ang[is.na(nl[[1]]$rel.ang)] <- 0
+            nl[[1]]$rel.angle[is.na(nl[[1]]$rel.angle)] <- 0
             class(nl) <- "ltraj"
             options(opt)
             return(nl)
         }
         nl <- do.call("c.ltraj", lapply(burst, foo))
+        attr(nl, "proj4string") <- p4s
         return(nl)
     } else {
         nl <- do.call("c.ltraj", lapply(1:length(l), function(i) {
@@ -81,8 +83,7 @@ redisltraj <- function (l, u, burst = NULL, samplex0 = FALSE, addbit = FALSE,
             attr(da, "tzone") <- attr(oo[,3], "tzone")
             as.ltraj(df[,1:2], da, id=id(l)[i], burst=burst(l)[i], typeII=attr(l, "typeII"))
         }))
+        attr(nl, "proj4string") <- p4s
         return(nl)
     }
 }
-
-

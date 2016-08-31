@@ -1,7 +1,8 @@
 as.ltraj <- function(xy, date=NULL, id, burst=id, typeII = TRUE,
                      slsp =  c("remove", "missing"),
                      infolocs = data.frame(pkey = paste(id, date, sep="."),
-                                           row.names=row.names(xy)))
+                     row.names=row.names(xy)),
+                     proj4string=CRS())
 {
     ## Various verifications
     if (typeII) {
@@ -15,12 +16,14 @@ as.ltraj <- function(xy, date=NULL, id, burst=id, typeII = TRUE,
 
     slsp <- match.arg(slsp)
 
+    if (!inherits(proj4string, "CRS"))
+        stop("proj4string should inherit CRS")
+
     ## Length of infolocs, if provided
     if (!is.null(infolocs)) {
         if (nrow(infolocs)!=nrow(xy))
             stop("infolocs should have the same number of rows as xy")
     }
-
 
     ## length of id
     if (length(id)==1)
@@ -144,11 +147,56 @@ as.ltraj <- function(xy, date=NULL, id, burst=id, typeII = TRUE,
     class(res) <- c("ltraj","list")
     attr(res,"typeII") <- typeII
     attr(res,"regular") <- is.regular(res)
+    attr(res,"proj4string") <- proj4string
     return(res)
 }
 
 
+.ctzda <- function(x)
+{
+    if (!inherits(x,"POSIXct"))
+        stop("x should inherit POSIXct")
+    tz <- attr(x,"tzone")
+    if (is.null(tz))
+        return("")
+    if (tz=="")
+        return("")
+    return(tz)
+}
 
+.checktz <- function(x)
+{
+    if (!inherits(x, "ltraj"))
+        stop("x should be of class \"ltraj\"")
+    tz <- lapply(x, function(y) attr(y$date, "tzone"))
+    atz <- all(sapply(1:length(tz), function(i) identical(tz[[i]],tz[[1]])))
+    if (!atz)
+        stop("multiple time zones not allowed in objects of class ltraj")
+    if (is.null(tz[[1]]))
+        return("")
+    if (tz[[1]]=="")
+        return("")
+    return(tz[[1]])
+}
+
+.checkp4 <- function(...)
+{
+    uu <- list(...)
+    if (!all(unlist(lapply(uu, function(x) inherits(x,"ltraj")))))
+        stop("all objects should be of class \"ltraj\"")
+    pf <- lapply(uu, function(x) {
+                     at <- attr(x, "proj4string")
+                     if (is.null(at))
+                         return(CRS())
+                     if (!inherits(at, "CRS"))
+                         stop("proj4string should inherit CRS")
+                     return(at)
+                 })
+    atz <- all(sapply(1:length(pf), function(i) identical(pf[[i]],pf[[1]])))
+    if (!atz)
+        stop("multiple projections not allowed in objects of class ltraj")
+    return(pf[[1]])
+}
 
 
 .traj2ltraj <- function(traj,slsp =  c("remove", "missing"))
@@ -208,11 +256,20 @@ as.ltraj <- function(xy, date=NULL, id, burst=id, typeII = TRUE,
     if (!inherits(x, "ltraj"))
       stop("x should be of class \"ltraj\"")
     if (!inherits(value, "ltraj"))
-      stop("value should be of class \"ltraj\"")
+        stop("value should be of class \"ltraj\"")
+    p4s <- .checkp4(x,value)
+
     if (sum((!missing(i))+(!missing(id))+(!missing(burst)))!=1)
       stop("non convenient subset")
     typII <- attr(x,"typeII")
     regg <- attr(x,"regular")
+
+    if (typII) {
+        tz1 <- .checktz(x)
+        tz2 <- .checktz(value)
+        if (tz1!=tz2)
+            stop("The different ltraj are sampled in different time zones")
+    }
 
     inx <- infolocs(x)
     inva <- infolocs(value)
@@ -242,6 +299,7 @@ as.ltraj <- function(xy, date=NULL, id, burst=id, typeII = TRUE,
     class(x) <- c("ltraj","list")
     attr(x,"typeII") <- typII
     attr(x,"regular") <- is.regular(x)
+    attr(x,"proj4string") <- p4s
     bu <- unlist(lapply(x, function(y) attr(y, "burst")))
     if (length(unique(bu))!=length(bu))
       stop("attribute \"burst\" should be unique for a burst of relocations")
@@ -278,6 +336,12 @@ print.ltraj <- function(x,...)
     cat("\n*********** List of class ltraj ***********\n\n")
     if (attr(x,"typeII")) {
         cat("Type of the traject: Type II (time recorded)\n")
+        tz <- .checktz(x)
+        if (tz=="") {
+            cat("* Time zone unspecified: dates printed in user time zone *\n")
+        } else {
+            cat("* Time zone:", tz, "*\n")
+        }
         if (attr(x,"regular")) {
             cat(paste("Regular traject. Time lag between two locs:",
                       mean(x[[1]]$dt, na.rm=TRUE),"seconds\n"))
@@ -335,7 +399,9 @@ removeinfo <- function(ltraj)
     id <- factor(unlist(lapply(x, function(y)
                                id <- rep(attr(y,"id"), nrow(y)))))
     burst <- factor(unlist(lapply(x, function(y)
-                                  id <- rep(attr(y,"burst"), nrow(y)))))
+        id <- rep(attr(y,"burst"), nrow(y)))))
+    if (attr(x,"typeII"))
+        tz <- .checktz(x)
     if (!is.null(infolocs(x)))
         infol <- do.call("rbind", infolocs(x))
     res <- do.call("rbind", x)
@@ -351,6 +417,7 @@ c.ltraj <- function(...)
     uu <- list(...)
     if (!all(unlist(lapply(uu, function(x) inherits(x,"ltraj")))))
         stop("all objects should be of class \"ltraj\"")
+    p4s <- .checkp4(...)
     if (!is.null(infolocs(uu[[1]]))) {
         if (!all(sapply(uu, function(x) !is.null(infolocs(x)))))
             stop("all elements should have an infolocs, or none of them")
@@ -364,6 +431,12 @@ c.ltraj <- function(...)
     at1 <- all(unlist(lapply(uu, function(x) !attr(x, "typeII"))))
     if (!(at2|at1))
         stop("all objects should be of the same type (time recorded or not")
+    if (attr(uu[[1]], "typeII")) {
+        tz <- lapply(uu, function(y) .checktz(y))
+        if (any(sapply(tz, function(y) y!=tz[[1]])))
+            stop("The different ltraj are sampled in different time zones")
+    }
+
     bu <- unlist(lapply(uu, function(x) unlist(lapply(x, function(y) attr(y, "burst")))))
     if (length(unique(bu))!=length(bu))
       stop("attribute \"burst\" should be unique for a burst of relocations")
@@ -372,5 +445,6 @@ c.ltraj <- function(...)
     class(uu) <- c("ltraj","list")
     attr(uu,"typeII") <- at2
     attr(uu,"regular") <- is.regular(uu)
+    attr(uu,"proj4string") <- p4s
     return(uu)
 }

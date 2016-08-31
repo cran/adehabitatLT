@@ -195,7 +195,7 @@ head(locs)
 ###################################################
 da <- as.character(locs$Date)
 head(da)
-da <- as.POSIXct(strptime(as.character(locs$Date),"%y%m%d"))
+da <- as.POSIXct(strptime(as.character(locs$Date),"%y%m%d", tz="Europe/Paris"))
 
 
 ###################################################
@@ -377,7 +377,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 ###################################################
 ### code chunk number 36: adehabitatLT.Rnw:609-611
 ###################################################
-refda <- strptime("00:00", "%H:%M")
+refda <- strptime("00:00", "%H:%M", tz="Europe/Paris")
 refda
 
 
@@ -421,7 +421,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 ###################################################
 ### code chunk number 42: adehabitatLT.Rnw:668-671
 ###################################################
-refda <- strptime("2003-06-01 00:00", "%Y-%m-%d %H:%M")
+refda <- strptime("2003-06-01 00:00", "%Y-%m-%d %H:%M", tz="Europe/Paris")
 ib2 <- setNA(ibexraw, refda, 4, units = "hour")
 ib2
 
@@ -469,35 +469,36 @@ ib3
 
 
 ###################################################
-### code chunk number 49: adehabitatLT.Rnw:743-746
+### code chunk number 49: adehabitatLT.Rnw:743-747
 ###################################################
 ib4 <- set.limits(ib3, begin = "2003-06-01 00:00",
-                  dur = 14, units = "day", pattern = "%Y-%m-%d %H:%M")
+                  dur = 14, units = "day", pattern = "%Y-%m-%d %H:%M",
+                  tz="Europe/Paris")
 ib4
 
 
 ###################################################
-### code chunk number 50: adehabitatLT.Rnw:751-752
+### code chunk number 50: adehabitatLT.Rnw:752-753
 ###################################################
 is.sd(ib4)
 
 
 ###################################################
-### code chunk number 51: adehabitatLT.Rnw:775-777
+### code chunk number 51: adehabitatLT.Rnw:776-778
 ###################################################
 di <- sd2df(ib4, "dist")
 head(di)
 
 
 ###################################################
-### code chunk number 52: adehabitatLT.Rnw:800-802
+### code chunk number 52: adehabitatLT.Rnw:801-803
 ###################################################
 data(capreochiz)
 head(capreochiz)
 
 
 ###################################################
-### code chunk number 53: adehabitatLT.Rnw:814-818
+### code chunk number 53: adehabitatLT.Rnw:815-819
 ###################################################
 capreo <- as.ltraj(xy = capreochiz[,c("x","y")], date = capreochiz$date,
                    id = "Roe.Deer",
@@ -506,7 +507,7 @@ capreo
 
 
 ###################################################
-### code chunk number 54: adehabitatLT.Rnw:825-827
+### code chunk number 54: adehabitatLT.Rnw:826-828
 ###################################################
 inf <- infolocs(capreo)
 head(inf[[1]])
@@ -519,13 +520,13 @@ head(inf[[1]])
 
 
 ###################################################
-### code chunk number 56: adehabitatLT.Rnw:855-856 (eval = FALSE)
+### code chunk number 56: adehabitatLT.Rnw:856-857 (eval = FALSE)
 ###################################################
 ## plotltr(capreo, "log(Dop)")
 
 
 ###################################################
-### code chunk number 57: adehabitatLT.Rnw:860-863
+### code chunk number 57: adehabitatLT.Rnw:861-864
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -542,13 +543,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 59: adehabitatLT.Rnw:896-897 (eval = FALSE)
+### code chunk number 59: adehabitatLT.Rnw:897-898 (eval = FALSE)
 ###################################################
 ## runsNAltraj(ib4)
 
 
 ###################################################
-### code chunk number 60: adehabitatLT.Rnw:902-905
+### code chunk number 60: adehabitatLT.Rnw:903-906
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -559,7 +560,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 61: adehabitatLT.Rnw:919-921
+### code chunk number 61: adehabitatLT.Rnw:932-934
 ###################################################
 data(bear)
 bear
@@ -572,13 +573,13 @@ bear
 
 
 ###################################################
-### code chunk number 63: adehabitatLT.Rnw:933-934 (eval = FALSE)
+### code chunk number 63: adehabitatLT.Rnw:946-947 (eval = FALSE)
 ###################################################
 ## runsNAltraj(bear)
 
 
 ###################################################
-### code chunk number 64: adehabitatLT.Rnw:938-941
+### code chunk number 64: adehabitatLT.Rnw:951-954
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -595,13 +596,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 66: adehabitatLT.Rnw:952-953 (eval = FALSE)
+### code chunk number 66: adehabitatLT.Rnw:965-966 (eval = FALSE)
 ###################################################
 ## plotNAltraj(bear)
 
 
 ###################################################
-### code chunk number 67: adehabitatLT.Rnw:957-960
+### code chunk number 67: adehabitatLT.Rnw:970-973
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -612,14 +613,14 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 68: adehabitatLT.Rnw:969-971
+### code chunk number 68: adehabitatLT.Rnw:982-984
 ###################################################
 missval <- as.numeric(is.na(bear[[1]]$x))
 head(missval)
 
 
 ###################################################
-### code chunk number 69: adehabitatLT.Rnw:997-999
+### code chunk number 69: adehabitatLT.Rnw:1010-1012
 ###################################################
 bearI <- typeII2typeI(bear)
 bearI
@@ -632,13 +633,13 @@ bearI
 
 
 ###################################################
-### code chunk number 71: adehabitatLT.Rnw:1021-1022 (eval = FALSE)
+### code chunk number 71: adehabitatLT.Rnw:1034-1035 (eval = FALSE)
 ###################################################
 ## plot(bearI)
 
 
 ###################################################
-### code chunk number 72: adehabitatLT.Rnw:1026-1029
+### code chunk number 72: adehabitatLT.Rnw:1039-1042
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -649,7 +650,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 73: adehabitatLT.Rnw:1036-1038
+### code chunk number 73: adehabitatLT.Rnw:1049-1051
 ###################################################
 bearIr <- redisltraj(bearI, 500)
 bearIr
@@ -662,13 +663,13 @@ bearIr
 
 
 ###################################################
-### code chunk number 75: adehabitatLT.Rnw:1048-1049 (eval = FALSE)
+### code chunk number 75: adehabitatLT.Rnw:1061-1062 (eval = FALSE)
 ###################################################
 ## plot(bearIr)
 
 
 ###################################################
-### code chunk number 76: adehabitatLT.Rnw:1053-1056
+### code chunk number 76: adehabitatLT.Rnw:1066-1069
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -685,13 +686,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 78: adehabitatLT.Rnw:1069-1070 (eval = FALSE)
+### code chunk number 78: adehabitatLT.Rnw:1082-1083 (eval = FALSE)
 ###################################################
 ## sliwinltr(bearIr, function(x) mean(cos(x$rel.angle)), type="locs", step=30)
 
 
 ###################################################
-### code chunk number 79: adehabitatLT.Rnw:1074-1077
+### code chunk number 79: adehabitatLT.Rnw:1087-1090
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -702,33 +703,33 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 80: adehabitatLT.Rnw:1087-1089
+### code chunk number 80: adehabitatLT.Rnw:1100-1102
 ###################################################
 cosrelangle <- cos(bearIr[[1]]$rel.angle)
 head(cosrelangle)
 
 
 ###################################################
-### code chunk number 81: adehabitatLT.Rnw:1119-1121
+### code chunk number 81: adehabitatLT.Rnw:1132-1134
 ###################################################
 data(porpoise)
 porpoise
 
 
 ###################################################
-### code chunk number 82: adehabitatLT.Rnw:1131-1132
+### code chunk number 82: adehabitatLT.Rnw:1144-1145
 ###################################################
 (porpoise2 <- redisltraj(na.omit(porpoise[1:3]), 86400, type="time"))
 
 
 ###################################################
-### code chunk number 83: adehabitatLT.Rnw:1149-1150 (eval = FALSE)
+### code chunk number 83: adehabitatLT.Rnw:1162-1163 (eval = FALSE)
 ###################################################
 ## trajdyn(ib4)
 
 
 ###################################################
-### code chunk number 84: adehabitatLT.Rnw:1188-1189
+### code chunk number 84: adehabitatLT.Rnw:1201-1202
 ###################################################
 wawotest(bear)
 
@@ -740,13 +741,13 @@ wawotest(bear)
 
 
 ###################################################
-### code chunk number 86: adehabitatLT.Rnw:1204-1205 (eval = FALSE)
+### code chunk number 86: adehabitatLT.Rnw:1217-1218 (eval = FALSE)
 ###################################################
 ## plotltr(bear, "dist")
 
 
 ###################################################
-### code chunk number 87: adehabitatLT.Rnw:1209-1212
+### code chunk number 87: adehabitatLT.Rnw:1222-1225
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -757,7 +758,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 88: adehabitatLT.Rnw:1219-1221 (eval = FALSE)
+### code chunk number 88: adehabitatLT.Rnw:1232-1234 (eval = FALSE)
 ###################################################
 ## sliwinltr(bear, function(x) mean(na.omit(x$dist)),
 ##           5*48, type="locs")
@@ -770,13 +771,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 90: adehabitatLT.Rnw:1249-1250 (eval = FALSE)
+### code chunk number 90: adehabitatLT.Rnw:1262-1263 (eval = FALSE)
 ###################################################
 ## acfdist.ltraj(bear, lag=5, which="dist")
 
 
 ###################################################
-### code chunk number 91: adehabitatLT.Rnw:1254-1257
+### code chunk number 91: adehabitatLT.Rnw:1267-1270
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -817,7 +818,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 93: adehabitatLT.Rnw:1303-1306
+### code chunk number 93: adehabitatLT.Rnw:1316-1319
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -852,7 +853,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 94: adehabitatLT.Rnw:1315-1316
+### code chunk number 94: adehabitatLT.Rnw:1328-1329
 ###################################################
 testang.ltraj(bear, "relative")
 
@@ -864,13 +865,13 @@ testang.ltraj(bear, "relative")
 
 
 ###################################################
-### code chunk number 96: adehabitatLT.Rnw:1330-1331 (eval = FALSE)
+### code chunk number 96: adehabitatLT.Rnw:1343-1344 (eval = FALSE)
 ###################################################
 ## acfang.ltraj(bear, lag=5)
 
 
 ###################################################
-### code chunk number 97: adehabitatLT.Rnw:1335-1338
+### code chunk number 97: adehabitatLT.Rnw:1348-1351
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -881,7 +882,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 98: adehabitatLT.Rnw:1365-1368
+### code chunk number 98: adehabitatLT.Rnw:1378-1381
 ###################################################
 data(porpoise)
 gus <- porpoise[1]
@@ -895,13 +896,13 @@ gus
 
 
 ###################################################
-### code chunk number 100: adehabitatLT.Rnw:1378-1379 (eval = FALSE)
+### code chunk number 100: adehabitatLT.Rnw:1391-1392 (eval = FALSE)
 ###################################################
 ## plot(gus)
 
 
 ###################################################
-### code chunk number 101: adehabitatLT.Rnw:1383-1386
+### code chunk number 101: adehabitatLT.Rnw:1396-1399
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -918,13 +919,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 103: adehabitatLT.Rnw:1403-1404 (eval = FALSE)
+### code chunk number 103: adehabitatLT.Rnw:1416-1417 (eval = FALSE)
 ###################################################
 ## acfdist.ltraj(gus, "dist", lag=20)
 
 
 ###################################################
-### code chunk number 104: adehabitatLT.Rnw:1408-1411
+### code chunk number 104: adehabitatLT.Rnw:1421-1424
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -941,13 +942,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 106: adehabitatLT.Rnw:1423-1424 (eval = FALSE)
+### code chunk number 106: adehabitatLT.Rnw:1436-1437 (eval = FALSE)
 ###################################################
 ## plotltr(gus, "dist")
 
 
 ###################################################
-### code chunk number 107: adehabitatLT.Rnw:1428-1431
+### code chunk number 107: adehabitatLT.Rnw:1441-1444
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -958,13 +959,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 108: adehabitatLT.Rnw:1441-1442
+### code chunk number 108: adehabitatLT.Rnw:1454-1455
 ###################################################
 (tested.means <- round(seq(0, 130000, length = 10), 0))
 
 
 ###################################################
-### code chunk number 109: adehabitatLT.Rnw:1450-1453
+### code chunk number 109: adehabitatLT.Rnw:1463-1466
 ###################################################
 (limod <- as.list(paste("dnorm(dist, mean =",
                         tested.means,
@@ -972,7 +973,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 110: adehabitatLT.Rnw:1469-1471
+### code chunk number 110: adehabitatLT.Rnw:1482-1484
 ###################################################
 mod <- modpartltraj(gus, limod)
 mod
@@ -985,13 +986,13 @@ mod
 
 
 ###################################################
-### code chunk number 112: adehabitatLT.Rnw:1483-1484 (eval = FALSE)
+### code chunk number 112: adehabitatLT.Rnw:1496-1497 (eval = FALSE)
 ###################################################
 ## bestpartmod(mod)
 
 
 ###################################################
-### code chunk number 113: adehabitatLT.Rnw:1488-1491
+### code chunk number 113: adehabitatLT.Rnw:1501-1504
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1002,7 +1003,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 114: adehabitatLT.Rnw:1529-1530
+### code chunk number 114: adehabitatLT.Rnw:1542-1543
 ###################################################
 (pm <- partmod.ltraj(gus, 4, mod))
 
@@ -1014,13 +1015,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 116: adehabitatLT.Rnw:1540-1541 (eval = FALSE)
+### code chunk number 116: adehabitatLT.Rnw:1553-1554 (eval = FALSE)
 ###################################################
 ## plot(pm)
 
 
 ###################################################
-### code chunk number 117: adehabitatLT.Rnw:1545-1548
+### code chunk number 117: adehabitatLT.Rnw:1558-1561
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1044,7 +1045,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 119: adehabitatLT.Rnw:1573-1574 (eval = FALSE)
+### code chunk number 119: adehabitatLT.Rnw:1586-1587 (eval = FALSE)
 ###################################################
 ## ## Shows the segmentation on the distances:
 ## plotltr(gus, "dist")
@@ -1057,7 +1058,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 120: adehabitatLT.Rnw:1578-1581
+### code chunk number 120: adehabitatLT.Rnw:1591-1594
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1086,7 +1087,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 122: adehabitatLT.Rnw:1599-1600 (eval = FALSE)
+### code chunk number 122: adehabitatLT.Rnw:1612-1613 (eval = FALSE)
 ###################################################
 ## ## Computes the residuals
 ## res <- unlist(lapply(1:length(pm$ltraj), function(i) {
@@ -1097,7 +1098,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 123: adehabitatLT.Rnw:1604-1607
+### code chunk number 123: adehabitatLT.Rnw:1617-1620
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1113,13 +1114,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 124: adehabitatLT.Rnw:1614-1615
+### code chunk number 124: adehabitatLT.Rnw:1627-1628
 ###################################################
 wawotest(res)
 
 
 ###################################################
-### code chunk number 125: adehabitatLT.Rnw:1720-1743
+### code chunk number 125: adehabitatLT.Rnw:1733-1756
 ###################################################
 par(mar=c(0,0,0,0))
 plot(c(0,1), xlim=c(-0.3,1.3), ylim=c(-0.3,1.3), axes=FALSE)
@@ -1147,7 +1148,7 @@ text(0.4, 1.25, "Contrast function measured on the segment\n beginning at observ
 
 
 ###################################################
-### code chunk number 126: adehabitatLT.Rnw:1751-1771
+### code chunk number 126: adehabitatLT.Rnw:1764-1784
 ###################################################
 par(mar=c(0,0,0,0))
 plot(c(0,1), xlim=c(-0.3,1.3), ylim=c(-0.3,1.3), axes=FALSE)
@@ -1182,7 +1183,7 @@ points(c(0.45, 0.75, 0.95),
 
 
 ###################################################
-### code chunk number 128: adehabitatLT.Rnw:1846-1847 (eval = FALSE)
+### code chunk number 128: adehabitatLT.Rnw:1859-1860 (eval = FALSE)
 ###################################################
 ## set.seed(129)
 ## seri <- c(rnorm(100), rnorm(100, mean=2),
@@ -1192,7 +1193,7 @@ points(c(0.45, 0.75, 0.95),
 
 
 ###################################################
-### code chunk number 129: adehabitatLT.Rnw:1851-1854
+### code chunk number 129: adehabitatLT.Rnw:1864-1867
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1207,13 +1208,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 130: adehabitatLT.Rnw:1863-1864
+### code chunk number 130: adehabitatLT.Rnw:1876-1877
 ###################################################
 (l <- lavielle(seri, Lmin=10, Kmax=20, type="mean"))
 
 
 ###################################################
-### code chunk number 131: adehabitatLT.Rnw:1875-1876
+### code chunk number 131: adehabitatLT.Rnw:1888-1889
 ###################################################
 chooseseg(l)
 
@@ -1225,13 +1226,13 @@ chooseseg(l)
 
 
 ###################################################
-### code chunk number 133: adehabitatLT.Rnw:1895-1896 (eval = FALSE)
+### code chunk number 133: adehabitatLT.Rnw:1908-1909 (eval = FALSE)
 ###################################################
 ## fp <- findpath(l, 6)
 
 
 ###################################################
-### code chunk number 134: adehabitatLT.Rnw:1900-1903
+### code chunk number 134: adehabitatLT.Rnw:1913-1916
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1242,33 +1243,33 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 135: adehabitatLT.Rnw:1911-1912
+### code chunk number 135: adehabitatLT.Rnw:1924-1925
 ###################################################
 fp
 
 
 ###################################################
-### code chunk number 136: adehabitatLT.Rnw:1924-1925
+### code chunk number 136: adehabitatLT.Rnw:1937-1938
 ###################################################
 plotltr(gus, "dist")
 
 
 ###################################################
-### code chunk number 137: adehabitatLT.Rnw:1935-1937
+### code chunk number 137: adehabitatLT.Rnw:1948-1950
 ###################################################
 lav <- lavielle(gus, Lmin=2, Kmax=20)
 chooseseg(lav)
 
 
 ###################################################
-### code chunk number 138: adehabitatLT.Rnw:1944-1946
+### code chunk number 138: adehabitatLT.Rnw:1957-1959
 ###################################################
 kk <- findpath(lav, 4)
 kk
 
 
 ###################################################
-### code chunk number 139: adehabitatLT.Rnw:1953-1954
+### code chunk number 139: adehabitatLT.Rnw:1966-1967
 ###################################################
 plot(kk)
 
@@ -1282,7 +1283,7 @@ plot(kk)
 
 
 ###################################################
-### code chunk number 141: adehabitatLT.Rnw:2005-2006 (eval = FALSE)
+### code chunk number 141: adehabitatLT.Rnw:2018-2019 (eval = FALSE)
 ###################################################
 ## data(puechcirc)
 ## data(puechabonsp)
@@ -1290,7 +1291,7 @@ plot(kk)
 
 
 ###################################################
-### code chunk number 142: adehabitatLT.Rnw:2010-2013
+### code chunk number 142: adehabitatLT.Rnw:2023-2026
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1303,13 +1304,13 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 143: adehabitatLT.Rnw:2019-2020
+### code chunk number 143: adehabitatLT.Rnw:2032-2033
 ###################################################
 ii <- rasterize.ltraj(puechcirc, puechabonsp$map)
 
 
 ###################################################
-### code chunk number 144: adehabitatLT.Rnw:2027-2029
+### code chunk number 144: adehabitatLT.Rnw:2040-2042
 ###################################################
 tr1 <- ii[[1]]
 head(tr1)
@@ -1323,14 +1324,14 @@ head(tr1)
 
 
 ###################################################
-### code chunk number 146: adehabitatLT.Rnw:2041-2042 (eval = FALSE)
+### code chunk number 146: adehabitatLT.Rnw:2054-2055 (eval = FALSE)
 ###################################################
 ## plot(tr1)
 ## points(tr1[tr1[[1]]==3,], col="red")
 
 
 ###################################################
-### code chunk number 147: adehabitatLT.Rnw:2046-2049
+### code chunk number 147: adehabitatLT.Rnw:2059-2062
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1350,7 +1351,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 149: adehabitatLT.Rnw:2065-2066 (eval = FALSE)
+### code chunk number 149: adehabitatLT.Rnw:2078-2079 (eval = FALSE)
 ###################################################
 ## ov <- over(tr1, puechabonsp$map)
 ## mo <- tapply(ov[[1]], tr1[[1]], mean)
@@ -1358,7 +1359,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 150: adehabitatLT.Rnw:2070-2073
+### code chunk number 150: adehabitatLT.Rnw:2083-2086
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1371,7 +1372,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 151: adehabitatLT.Rnw:2086-2112
+### code chunk number 151: adehabitatLT.Rnw:2099-2125
 ###################################################
 val <- lapply(1:length(ii), function(i) {
 
@@ -1402,7 +1403,7 @@ val <- lapply(1:length(ii), function(i) {
 
 
 ###################################################
-### code chunk number 152: adehabitatLT.Rnw:2117-2118
+### code chunk number 152: adehabitatLT.Rnw:2130-2131
 ###################################################
 infolocs(puechcirc) <- val
 
@@ -1414,13 +1415,13 @@ infolocs(puechcirc) <- val
 
 
 ###################################################
-### code chunk number 154: adehabitatLT.Rnw:2128-2129 (eval = FALSE)
+### code chunk number 154: adehabitatLT.Rnw:2141-2142 (eval = FALSE)
 ###################################################
 ## plotltr(puechcirc, "elevation")
 
 
 ###################################################
-### code chunk number 155: adehabitatLT.Rnw:2133-2136
+### code chunk number 155: adehabitatLT.Rnw:2146-2149
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1431,7 +1432,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 156: adehabitatLT.Rnw:2177-2179
+### code chunk number 156: adehabitatLT.Rnw:2190-2192
 ###################################################
 sim <- simm.crw(1:1000, r=0.95)
 sim
@@ -1444,13 +1445,13 @@ sim
 
 
 ###################################################
-### code chunk number 158: adehabitatLT.Rnw:2192-2193 (eval = FALSE)
+### code chunk number 158: adehabitatLT.Rnw:2205-2206 (eval = FALSE)
 ###################################################
 ## plot(sim, addp=FALSE)
 
 
 ###################################################
-### code chunk number 159: adehabitatLT.Rnw:2197-2200
+### code chunk number 159: adehabitatLT.Rnw:2210-2213
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1475,7 +1476,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 161: adehabitatLT.Rnw:2260-2261 (eval = FALSE)
+### code chunk number 161: adehabitatLT.Rnw:2273-2274 (eval = FALSE)
 ###################################################
 ## data(puechcirc)
 ## data(puechabonsp)
@@ -1489,7 +1490,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 162: adehabitatLT.Rnw:2265-2268
+### code chunk number 162: adehabitatLT.Rnw:2278-2281
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1508,7 +1509,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 163: adehabitatLT.Rnw:2349-2356
+### code chunk number 163: adehabitatLT.Rnw:2362-2369
 ###################################################
 plotfun <- function(x, par)
 {
@@ -1520,7 +1521,7 @@ plotfun <- function(x, par)
 
 
 ###################################################
-### code chunk number 164: adehabitatLT.Rnw:2364-2369
+### code chunk number 164: adehabitatLT.Rnw:2377-2382
 ###################################################
 nmo <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
                                rx = range(xo[,1]), ry = range(xo[,2]),
@@ -1538,7 +1539,7 @@ nmo
 
 
 ###################################################
-### code chunk number 166: adehabitatLT.Rnw:2390-2391 (eval = FALSE)
+### code chunk number 166: adehabitatLT.Rnw:2403-2404 (eval = FALSE)
 ###################################################
 ## set.seed(90909)
 ## par(mfrow=c(3,3), mar=c(0,0,0,0))
@@ -1546,7 +1547,7 @@ nmo
 
 
 ###################################################
-### code chunk number 167: adehabitatLT.Rnw:2395-2398
+### code chunk number 167: adehabitatLT.Rnw:2408-2411
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1559,7 +1560,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 168: adehabitatLT.Rnw:2419-2430
+### code chunk number 168: adehabitatLT.Rnw:2432-2443
 ###################################################
 confun <- function(x, par)
 {
@@ -1575,7 +1576,7 @@ confun <- function(x, par)
 
 
 ###################################################
-### code chunk number 169: adehabitatLT.Rnw:2436-2443
+### code chunk number 169: adehabitatLT.Rnw:2449-2456
 ###################################################
 nmo2 <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
                                 rx = range(xo[,1]), ry = range(xo[,2]),
@@ -1595,7 +1596,7 @@ nmo2 <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
 
 
 ###################################################
-### code chunk number 171: adehabitatLT.Rnw:2455-2456 (eval = FALSE)
+### code chunk number 171: adehabitatLT.Rnw:2468-2469 (eval = FALSE)
 ###################################################
 ## set.seed(90909)
 ## par(mfrow=c(3,3), mar=c(0,0,0,0))
@@ -1603,7 +1604,7 @@ nmo2 <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
 
 
 ###################################################
-### code chunk number 172: adehabitatLT.Rnw:2460-2463
+### code chunk number 172: adehabitatLT.Rnw:2473-2476
 ###################################################
 .PngNo <- .PngNo + 1; file <- paste("Fig-bitmap-",
           .PngNo, ".png", sep="")
@@ -1616,7 +1617,7 @@ cat("\\includegraphics[height=10cm,width=10cm]{", file, "}\n\n", sep="")
 
 
 ###################################################
-### code chunk number 173: adehabitatLT.Rnw:2477-2483
+### code chunk number 173: adehabitatLT.Rnw:2490-2496
 ###################################################
 varel <- function(x, par)
 {
@@ -1627,7 +1628,7 @@ varel <- function(x, par)
 
 
 ###################################################
-### code chunk number 174: adehabitatLT.Rnw:2492-2499
+### code chunk number 174: adehabitatLT.Rnw:2505-2512
 ###################################################
 nmo3 <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
                                 rx = range(xo[,1]), ry = range(xo[,2]),
@@ -1639,45 +1640,45 @@ nmo3 <- NMs.randomShiftRotation(na.omit(boar1), rshift = TRUE, rrot = TRUE,
 
 
 ###################################################
-### code chunk number 175: adehabitatLT.Rnw:2506-2507 (eval = FALSE)
+### code chunk number 175: adehabitatLT.Rnw:2519-2520 (eval = FALSE)
 ###################################################
 ## sim <- testNM(nmo3, count=FALSE)
 
 
 ###################################################
-### code chunk number 176: adehabitatLT.Rnw:2510-2511
+### code chunk number 176: adehabitatLT.Rnw:2523-2524
 ###################################################
 load("sim.Rdata")
 
 
 ###################################################
-### code chunk number 177: adehabitatLT.Rnw:2516-2517
+### code chunk number 177: adehabitatLT.Rnw:2529-2530
 ###################################################
 (obs <- varel(na.omit(boar1)[[1]], puechabonsp$map[,1]))
 
 
 ###################################################
-### code chunk number 178: adehabitatLT.Rnw:2524-2526
+### code chunk number 178: adehabitatLT.Rnw:2537-2539
 ###################################################
 (ran <- as.randtest(unlist(sim[[1]]), obs))
 plot(ran)
 
 
 ###################################################
-### code chunk number 179: adehabitatLT.Rnw:2538-2540
+### code chunk number 179: adehabitatLT.Rnw:2551-2553
 ###################################################
 puechcirc
 plot(puechcirc)
 
 
 ###################################################
-### code chunk number 180: adehabitatLT.Rnw:2547-2548
+### code chunk number 180: adehabitatLT.Rnw:2560-2561
 ###################################################
 (boar <- bindltraj(puechcirc))
 
 
 ###################################################
-### code chunk number 181: adehabitatLT.Rnw:2558-2565
+### code chunk number 181: adehabitatLT.Rnw:2571-2578
 ###################################################
 nmo4 <- NMs.randomShiftRotation(na.omit(boar), rshift = TRUE, rrot = TRUE,
                                 rx = range(xo[,1]), ry = range(xo[,2]),
@@ -1689,19 +1690,19 @@ nmo4 <- NMs.randomShiftRotation(na.omit(boar), rshift = TRUE, rrot = TRUE,
 
 
 ###################################################
-### code chunk number 182: adehabitatLT.Rnw:2570-2571 (eval = FALSE)
+### code chunk number 182: adehabitatLT.Rnw:2583-2584 (eval = FALSE)
 ###################################################
 ## sim2 <- testNM(nmo4, count=FALSE)
 
 
 ###################################################
-### code chunk number 183: adehabitatLT.Rnw:2574-2575
+### code chunk number 183: adehabitatLT.Rnw:2587-2588
 ###################################################
 load("sim2.Rdata")
 
 
 ###################################################
-### code chunk number 184: adehabitatLT.Rnw:2584-2587
+### code chunk number 184: adehabitatLT.Rnw:2597-2600
 ###################################################
 (obs <- lapply(na.omit(boar), function(x) {
   varel(x, puechabonsp$map[,1])
@@ -1709,7 +1710,7 @@ load("sim2.Rdata")
 
 
 ###################################################
-### code chunk number 185: adehabitatLT.Rnw:2592-2595
+### code chunk number 185: adehabitatLT.Rnw:2605-2608
 ###################################################
 lapply(1:2, function(i) {
   as.randtest(unlist(sim2[[i]]), obs[[i]])
@@ -1717,7 +1718,7 @@ lapply(1:2, function(i) {
 
 
 ###################################################
-### code chunk number 186: adehabitatLT.Rnw:2642-2651
+### code chunk number 186: adehabitatLT.Rnw:2655-2664
 ###################################################
 meanvarel <- function(x, par)
 {
@@ -1731,32 +1732,32 @@ meanvarel <- function(x, par)
 
 
 ###################################################
-### code chunk number 187: adehabitatLT.Rnw:2658-2660
+### code chunk number 187: adehabitatLT.Rnw:2671-2673
 ###################################################
 nmo5 <- NMs2NMm(nmo4, treatment.func = meanvarel,
                 treatment.par = puechabonsp$map, nrep = 99)
 
 
 ###################################################
-### code chunk number 188: adehabitatLT.Rnw:2669-2670 (eval = FALSE)
+### code chunk number 188: adehabitatLT.Rnw:2682-2683 (eval = FALSE)
 ###################################################
 ## sim3 <- testNM(nmo5, count=FALSE)
 
 
 ###################################################
-### code chunk number 189: adehabitatLT.Rnw:2673-2674
+### code chunk number 189: adehabitatLT.Rnw:2686-2687
 ###################################################
 load("sim3.Rdata")
 
 
 ###################################################
-### code chunk number 190: adehabitatLT.Rnw:2684-2685
+### code chunk number 190: adehabitatLT.Rnw:2697-2698
 ###################################################
 (obs <- meanvarel(na.omit(boar), puechabonsp$map))
 
 
 ###################################################
-### code chunk number 191: adehabitatLT.Rnw:2691-2693
+### code chunk number 191: adehabitatLT.Rnw:2704-2706
 ###################################################
 (ran <- as.randtest(unlist(sim3), obs))
 plot(ran)

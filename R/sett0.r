@@ -15,6 +15,11 @@ sett0 <- function(ltraj, date.ref, dt,
     }
     if (!inherits(date.ref,"POSIXct"))
         stop("date.ref should be of class \"POSIXct\"")
+    tz1 <- .checktz(ltraj)
+    tz2 <- .ctzda(date.ref)
+    if (tz1!=tz2)
+        stop("inconsistent time zones")
+    p4s <- .checkp4(ltraj)
 
     units <- match.arg(units)
     dt <- .convtime(dt, units)
@@ -47,6 +52,7 @@ sett0 <- function(ltraj, date.ref, dt,
     class(res) <- c("ltraj", "list")
     attr(res, "typeII") <- TRUE
     attr(res, "regular") <- TRUE
+    attr(res, "proj4string") <- p4s
     res <- rec(res,...)
     return(res)
 }
