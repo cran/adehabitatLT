@@ -1,6 +1,6 @@
 Package: adehabitatLT
-Version: 0.3.25
-Date: 2020-01-11
+Version: 0.3.26
+Date: 2022-10-19
 Depends: R (>= 2.10.0), sp, methods, ade4, adehabitatMA, CircStats,
         stats
 Suggests: maptools, tkrplot, MASS
@@ -11,6 +11,6 @@ Maintainer: Clement Calenge <clement.calenge@ofb.gouv.fr>
 Description: A collection of tools for the analysis of animal movements.
 License: GPL (>= 2)
 NeedsCompilation: yes
-Packaged: 2020-01-12 21:01:12 UTC; calenge
+Packaged: 2022-10-20 07:06:24 UTC; calenge
 Repository: CRAN
-Date/Publication: 2020-01-19 18:10:03 UTC
+Date/Publication: 2022-10-21 12:15:11 UTC

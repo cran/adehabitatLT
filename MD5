@@ -1,4 +1,4 @@
-cdee52b4306ca7a76309fa97fc30ea04 *DESCRIPTION
+a75f2275030551499980b59ceb3cb892 *DESCRIPTION
 637de2eaf0212cd8bd87c438a18b3462 *NAMESPACE
 4f8be5a5712dce839112140493d49ec6 *R/acfdistang.R
 0a427448ebfb73c62f88c7267cb32105 *R/as.ltraj.r
@@ -135,7 +135,7 @@ d4dd322da5d0bcbad632f0559b13014f *man/wawotest.Rd
 5b676cfe8529035bc0fb5f1cfe10a047 *man/whale.Rd
 5b4a730dee2c92508d4fc35d9e50529a *man/which.ltraj.Rd
 43efad360bf59a081ef1294c7880e53b *src/init.c
-a52e5bfc1240e37d90eae2815c21672b *src/tests.c
+e8d56711720774a83ddfae8b54eebbd0 *src/tests.c
 9ef52ae1f92386e51015a21da58c5591 *vignettes/adehabitatLT.Rnw
 817cbe20fd57d176594c96a49ee05827 *vignettes/sim.Rdata
 9db24bd56a096ee37f0a9fcc0b65f7ea *vignettes/sim2.Rdata
