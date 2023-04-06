@@ -1,4 +1,4 @@
-a75f2275030551499980b59ceb3cb892 *DESCRIPTION
+fd4b2b6a8d5b4c5c61130bcae392cadb *DESCRIPTION
 637de2eaf0212cd8bd87c438a18b3462 *NAMESPACE
 4f8be5a5712dce839112140493d49ec6 *R/acfdistang.R
 0a427448ebfb73c62f88c7267cb32105 *R/as.ltraj.r
@@ -60,6 +60,7 @@ d1cf464256850c8cc4020c0469f6c91e *R/summaryNAltraj.r
 b721f0ab05d68c922609ba50bc40d04c *R/wawotest.ltraj.r
 059351fd0b4eb4dd33d0f6e33ebe0196 *R/wawotest.r
 be52a7ba8bfbd79c647abdfa71b3d0a1 *R/which.ltraj.r
+742fce1e04e64aecfdc0a7224d432ef4 *build/vignette.rds
 75a1e1ddb8795da00a009f65a62bf849 *data/albatross.rda
 701f950f178df062d62bf6da7253273e *data/bear.rda
 23f5137380f2c9ee7b2faf0e19f51b3a *data/buffalo.rda
@@ -74,8 +75,9 @@ cb229711eca77e76fb549741913741f8 *data/ibex.rda
 79bf6f1984a64a1eff06bdf230d6215e *data/rupicabau.rda
 d9a40b752448a7f6ea21f6fdb5132aca *data/teal.rda
 01752bfcb4e01bab7431ef70c5a8c8f5 *data/whale.rda
-54e83d379e7576b9d749749e6e6b89e7 *inst/CITATION
-84a0acd51370473a636700ce8ea7d122 *inst/doc/adehabitatLT.pdf
+e45197d8756f0956363949f046f4525a *inst/doc/adehabitatLT.R
+9ef52ae1f92386e51015a21da58c5591 *inst/doc/adehabitatLT.Rnw
+c55d543a706f0c675a5d813d218f2905 *inst/doc/adehabitatLT.pdf
 6088b743e2e80dc95c27d6d6b471eabe *man/Chi.Rd
 100bbbcdedf895fa887bcb485d209ecc *man/Extract.ltraj.Rd
 64d9d7fbb6f59b78e645dd4391e9c9c9 *man/acfdist.ltraj.Rd
