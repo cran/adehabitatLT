@@ -1,8 +1,7 @@
 Package: adehabitatLT
-Version: 0.3.28
-Date: 2024-09-05
-Depends: R (>= 2.10.0), sp, methods, ade4, adehabitatMA, CircStats,
-        stats
+Version: 0.3.29
+Date: 2025-06-17
+Depends: R (>= 2.10.0), sp, methods, ade4, adehabitatMA, stats
 Suggests: tkrplot, MASS
 Imports: graphics, grDevices, utils
 Title: Analysis of Animal Movements
@@ -24,6 +23,6 @@ Description: A collection of tools for the analysis of animal movements.
 VignetteBuilder: utils
 License: GPL (>= 2)
 NeedsCompilation: yes
-Packaged: 2024-09-06 10:44:47 UTC; calenge
+Packaged: 2025-06-17 10:37:37 UTC; calenge
 Repository: CRAN
-Date/Publication: 2024-09-06 16:30:02 UTC
+Date/Publication: 2025-06-17 22:40:02 UTC
